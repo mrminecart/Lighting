@@ -1,27 +1,16 @@
 {
-  "name": "electron-quick-start",
+  "name": "lighting",
   "version": "1.0.0",
-  "description": "A minimal Electron application",
-  "main": "main.js",
+  "description": "Lighting control",
+  "main": "app.js",
   "scripts": {
-    "start": "electron main.js"
+    "start": "electron app.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/electron/electron-quick-start.git"
+    "url": "git@github.com:mrminecart/Lighting.git"
   },
-  "keywords": [
-    "Electron",
-    "quick",
-    "start",
-    "tutorial"
-  ],
-  "author": "GitHub",
-  "license": "CC0-1.0",
-  "bugs": {
-    "url": "https://github.com/electron/electron-quick-start/issues"
-  },
-  "homepage": "https://github.com/electron/electron-quick-start#readme",
+  "author": "William Overton",
   "devDependencies": {
     "electron-prebuilt": "^1.2.0"
   }
