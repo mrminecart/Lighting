@@ -13,5 +13,11 @@
   "author": "William Overton",
   "devDependencies": {
     "electron-prebuilt": "^1.2.0"
+  },
+  "dependencies": {
+    "async": "^1.5.2",
+    "debug": "^2.2.0",
+    "dmx": "git+https://github.com/wiedi/node-dmx.git",
+    "hue": "0.0.0"
   }
 }
