@@ -5,7 +5,11 @@ const app = electron.app
 const WindowManager = require('./bin/ui/window_manager.js');
 const DmxManager = require('./bin/dmx/dmx_manager.js');
 
-var init = function(){
+const App = function(){
+	this.init();
+}
+
+App.prototype.init = function(){
 
   debug("Starting...");
 
@@ -15,13 +19,21 @@ var init = function(){
   this.wm.createWindow();
 }
 
-app.on('ready', init)
+App.prototype.stop = function(){
+	this.dmx.stop();
+}
+
+app.on('ready', function(){
+	global.app_main = new App();
+})
 
 // Quit when all windows are closed.
 app.on('window-all-closed', function () {
-  app.quit();
-})
 
-app.on('activate', function () {
-  init();
-})
+	debug("Quitting!");
+
+	global.app_main.stop.call(global.app_main);
+
+	app.quit();
+}.bind(this))
+

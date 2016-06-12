@@ -9,8 +9,6 @@ var WindowManager = function(){
 
     this.mainWindow
     this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/index.html";
-
-    debug(this.indexUrl)
 }
 
 WindowManager.prototype.createWindow = function(){
@@ -24,7 +22,7 @@ WindowManager.prototype.createWindow = function(){
   this.mainWindow.loadURL(this.indexUrl)
 
   this.mainWindow.on('closed', function () {
-    this.mainWindow = null
+    process.exit(0)
   })
 
   this.mainWindow.setMenu(null);
