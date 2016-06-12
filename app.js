@@ -1,17 +1,17 @@
+const debug = require('debug')("li:main");
 const electron = require('electron')
 const app = electron.app
 
-const debug = require('debug')("li:main");
-
-const WindowManager = require('./bin/window_manager.js');
+const WindowManager = require('./bin/ui/window_manager.js');
+const DmxManager = require('./bin/dmx/dmx_manager.js');
 
 var init = function(){
 
-  debug("Starting")
+  debug("Starting...");
 
+  this.dmx = new DmxManager();
   this.wm = new WindowManager();
 
-  this.wm.createWindow();
   this.wm.createWindow();
 }
 

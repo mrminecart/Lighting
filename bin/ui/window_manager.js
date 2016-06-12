@@ -8,7 +8,7 @@ var WindowManager = function(){
     debug("Window manager loaded")
 
     this.mainWindow
-    this.indexUrl = "file://" + path.dirname(__dirname) + "/res/html/index.html";
+    this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/index.html";
 
     debug(this.indexUrl)
 }
@@ -18,7 +18,7 @@ WindowManager.prototype.createWindow = function(){
   debug("Creating window...")
 
   // Create the browser window.
-  this.mainWindow = new BrowserWindow({width: 1500, height: 1000})
+  this.mainWindow = new BrowserWindow({width: 1200, height: 800})
 
   // and load the index.html of the app.
   this.mainWindow.loadURL(this.indexUrl)
