@@ -9,7 +9,13 @@ const DmxManager = function(){
 	this.init();
 }
 
-DmxManager.prototype.init = function(){
+DmxManager.prototype.init = function(callback){
+
+	this.running = true;
+
+	this.landscape = {};
+	this.lastlandscape = {};
+
 	this.publisher = redis.createClient();
 
 	this.startPythonWriter();
@@ -18,6 +24,8 @@ DmxManager.prototype.init = function(){
 		this.initDMX();
 
 		this.test();
+
+		this.run();
 	}.bind(this), 1000);
 }
 
@@ -42,42 +50,85 @@ DmxManager.prototype.startPythonWriter = function(){
 }
 
 DmxManager.prototype.stop = function(){
-	this.prc.kill("SIGTERM");
+
+	this.running = false;
+
+	this.initDMX();
+
+	setTimeout(function(){
+		this.prc.kill("SIGTERM");
+
+		setTimeout(function(){
+			process.exit(0)
+		}, 100);
+	}.bind(this), 100)
 }
 
 DmxManager.prototype.initDMX = function(){
 	var data = {};
 
 	for(var i = 0 ; i < 512; i++){
-		data[i] = 0;
+		data[i] = 1;
 	}
 
-	this.sendData(data);
+	this.landscape = data;
+
+	this.sendData();
 }
 
-DmxManager.prototype.sendData = function(data){
-	this.publisher.publish("dmx_input", JSON.stringify(data));
+DmxManager.prototype.sendData = function(){
+
+	var diff = {};
+
+	for(var i = 0 ; i < 512; i++){
+		if(this.landscape[i] !== this.lastlandscape[i]){
+			this.lastlandscape[i] = diff[i] = this.landscape[i];
+		}
+	}
+
+	this.publisher.publish("dmx_input", JSON.stringify(diff));
+}
+
+DmxManager.prototype.set = function(packet){
+	for(var i = 0 ; i < 512; i++){
+		if(typeof packet[i] == "number"){
+			this.landscape[i] = Number.parseInt(packet[i])
+		}
+	}
+}
+
+DmxManager.prototype.run = function(){
+	if(!this.running) return;
+
+	this.sendData();
+
+	setTimeout(this.run.bind(this), 1000/30);
 }
 
 DmxManager.prototype.test = function(){
-	this.sendData({
+	this.set({
 		0: 255,
-		1: 0,
-		2: 0,
-		3: 0,
-		4: 0,
-		5: 0,
+		7: 255,
+		15: 255,
 		6: 255,
+		13: 255,
+		14: 255
 	})
 
-	var x = 0;
+	// var x = 0;
 
-	setInterval(function(){
-		x+=0.1;
+	// setInterval(function(){
+	// 	if (!this.running) return;
 
-		this.sendData({6: Number.parseInt(Math.sin(x) * 255 / 2) + 127});
+	// 	x+=0.1;
 
-	}.bind(this), 1000/30);
+	// 	this.set({
+	// 		6: Number.parseInt(Math.sin(x) * 256 / 2) + 128,
+	// 		13: Number.parseInt(Math.sin(x) * 256 / 2) + 128,
+	// 		14: Number.parseInt(Math.sin(x) * 128 / 2) + 128/2
+	// 	});
+
+	// }.bind(this), 1000/30);
 }
 
 module.exports = DmxManager;
