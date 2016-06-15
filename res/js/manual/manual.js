@@ -33,5 +33,3 @@ for(var i = 0 ; i < channel_count; i++){
 
 
 debug("Done the slider things");
-
-debug("Yo")

@@ -106,14 +106,14 @@ DmxManager.prototype.run = function(){
 }
 
 DmxManager.prototype.test = function(){
-	this.set({
-		0: 255,
-		7: 255,
-		15: 255,
-		6: 255,
-		13: 255,
-		14: 255
-	})
+	// this.set({
+	// 	0: 255,
+	// 	7: 255,
+	// 	15: 255,
+	// 	6: 255,
+	// 	13: 255,
+	// 	14: 255
+	// })
 
 	// var x = 0;
 

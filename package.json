@@ -4,7 +4,7 @@
   "description": "Lighting control",
   "main": "app.js",
   "scripts": {
-    "start": "DEBUG=li:* nodemon --exec ./node_modules/electron-prebuilt/dist/electron app.js"
+    "start": "DEBUG=li:* nodemon -e js,html,json,css,py --exec ./node_modules/electron-prebuilt/dist/electron app.js"
   },
   "repository": {
     "type": "git",

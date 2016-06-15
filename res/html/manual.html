@@ -5,13 +5,11 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <title>Lighting</title>
+    <title>Lighting - Manual</title>
 
     <!-- Bootstrap -->
     <link href=../css/lib/darkly.min.css rel="stylesheet">
-    <link href=../css/lib/jquery-ui.min.css rel="stylesheet">
-    <link href=../css/lib/gridstack.min.css rel="stylesheet">
-    <link href=../css/main.css rel="stylesheet">
+    <link href=../css/lib/bootstrap-slider.css rel="stylesheet">
   </head>
   <body>
     
@@ -28,34 +26,31 @@
         </div>
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
-            <li class="active"><a href="index.html">Setup</a></li>
+            <li><a href="index.html">Setup</a></li>
             <li><a href="#">Sequence</a></li>
-            <li><a href="manual.html">Manual</a></li>
+            <li class="active"><a href="#">Manual</a></li>
             <li><a href="#">Live</a></li>
           </ul>
         </div>
       </div>
     </nav>
 
-    <br>
-    <br>
-    <br>
-    <br>
+    <div class="row">
 
-    <div class="row-fluid">
-      <div class="grid-stack">
+      <div class="col-lg-12 container dmx-page-content">
+        <br>
+        <br>
+        <br>
+        
+        <div class="channel-bank" style="white-space: nowrap; max-width: 100%; overflow-x: scroll; overflow-y: hidden; padding: 15px 15px 15px 15px"></div>
       </div>
     </div>
 
-
     <script>
-      require('../js/util/inspector-tools.js');
       window.$ = window.jQuery = require('../js/lib/jquery.min.js');
-      require("../js/lib/jquery-ui.min.js")
-      require("../js/lib/lodash.min.js")
       require('../js/lib/bootstrap.min.js');
-      require('../js/lib/gridstack.min.js');
-      require('../js/home/home.js');
+      require('../js/util/inspector-tools.js');
+      require('../js/manual/manual.js');
     </script>
   </body>
 </html>
