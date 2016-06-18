@@ -16,7 +16,7 @@ WindowManager.prototype.createWindow = function(){
   debug("Creating window...")
 
   // Create the browser window.
-  this.mainWindow = new BrowserWindow({width: 1980, height: 1080})
+  this.mainWindow = new BrowserWindow({width: 1280, height: 800})
 
   // and load the index.html of the app.
   this.mainWindow.loadURL(this.indexUrl)
@@ -27,7 +27,7 @@ WindowManager.prototype.createWindow = function(){
 
   this.mainWindow.setMenu(null);
 
-  this.mainWindow.webContents.openDevTools()
+  // this.mainWindow.webContents.openDevTools()
 }
 
 module.exports = WindowManager;

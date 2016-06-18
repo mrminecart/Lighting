@@ -14,48 +14,48 @@ Home.prototype.init = function() {
 	this.lights = [{
 		x: 0,
 		y: 0,
-		width: 2,
-		height: 2,
+		width: 1,
+		height: 1,
 		some_other_thing: 1
 	}, {
-		x: 3,
-		y: 1,
+		x: 1,
+		y: 0,
 		width: 1,
-		height: 2,
+		height: 1,
 		some_other_thing: 2
 	}, {
-		x: 1,
-		y: 4,
+		x: 2,
+		y: 0,
 		width: 1,
 		height: 1,
 		some_other_thing: 3
 	}, {
-		x: 4,
-		y: 1,
+		x: 3,
+		y: 0,
 		width: 1,
 		height: 1,
 		some_other_thing: 4
 	}, {
-		x: 2,
-		y: 3,
-		width: 3,
+		x: 4,
+		y: 0,
+		width: 1,
 		height: 1,
 		some_other_thing: 5
 	}, {
-		x: 1,
-		y: 3,
+		x: 5,
+		y: 0,
 		width: 1,
 		height: 1,
 		some_other_thing: 6
 	}, {
-		x: 2,
-		y: 4,
+		x: 6,
+		y: 0,
 		width: 1,
 		height: 1,
 		some_other_thing: 7
 	}, {
-		x: 2,
-		y: 5,
+		x: 7,
+		y: 0,
 		width: 1,
 		height: 1,
 		some_other_thing: 8
@@ -73,7 +73,7 @@ Home.prototype.buildGrid = function() {
 	grid.removeAll();
 
 	_.each(this.lights, function(node) {
-		grid.addWidget($('<div><div class="grid-stack-item-content" /></div>'),
+		grid.addWidget($('<div><div class="grid-stack-item-content">' + node.some_other_thing + '</div></div>'),
 			node.x, node.y, node.width, node.height);
 	});
 }
