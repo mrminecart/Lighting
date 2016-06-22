@@ -21,6 +21,18 @@ Home.prototype.listenForDipSwitch = function() {
 	$("#dip-switch-input").bind("input", function() {
 		_this.buildDip($(this).val())
 	})
+
+	$(".dip-switch").on("switchChange.bootstrapSwitch", function() {
+		var value = 0;
+
+		$(".dip-switch").each(function() {
+			if ($(this).prop("checked")) {
+				value += parseInt($(this).attr("channel"));
+			}
+		})
+
+		$("#dip-switch-input").val(value)
+	})
 }
 
 Home.prototype.buildDip = function(value) {
