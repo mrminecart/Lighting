@@ -12,7 +12,7 @@ body {
 
 /* Wrapper for page content to push down footer */
 .allow-for-footer {
-  margin-bottom: 310px;
+  margin-bottom: 410px;
 }
 
 /* Set the fixed height of the footer here */
@@ -21,6 +21,17 @@ body {
   bottom: 0;
   width: 100%;
   /* Set the fixed height of the footer here */
-  height: 300px;
-  background-color: #666166;
+  height: 400px;
+}
+
+/* Set the fixed height of the footer here */
+#footer-content {
+  background-color: #555155;
+  min-height: 355px;
+}
+
+/* Set the fixed height of the footer here */
+#footer-header {
+  background-color: #2e2e2e;
+  border-bottom: 1px solid #222222;
 }

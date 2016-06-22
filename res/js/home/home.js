@@ -7,9 +7,46 @@ var Home = function() {
 }
 
 Home.prototype.init = function() {
-	this.gridOptions = {
-		cellHeight: 80
-	};
+
+	$(".dip-switch").bootstrapSwitch()
+
+	this.buildGrid();
+
+	this.listenForDipSwitch();
+}
+
+Home.prototype.listenForDipSwitch = function() {
+	var _this = this;
+
+	$("#dip-switch-input").bind("input", function() {
+		_this.buildDip($(this).val())
+	})
+}
+
+Home.prototype.buildDip = function(value) {
+
+	var curentValue = 0;
+
+	// Clear
+	$(".dip-switch").each(function() {
+		if ($(this).prop("checked")) {
+			$(this).click()
+		}
+	})
+
+	//Set
+	$($(".dip-switch").get().reverse()).each(function() {
+
+		if (curentValue + parseInt($(this).attr("channel")) <= value) {
+			$(this).click();
+
+			curentValue += parseInt($(this).attr("channel"));
+		}
+
+	})
+}
+
+Home.prototype.buildGrid = function() {
 
 	this.lights = [{
 		x: 0,
@@ -17,55 +54,13 @@ Home.prototype.init = function() {
 		width: 1,
 		height: 1,
 		some_other_thing: 1
-	}, {
-		x: 1,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 2
-	}, {
-		x: 2,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 3
-	}, {
-		x: 3,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 4
-	}, {
-		x: 4,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 5
-	}, {
-		x: 5,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 6
-	}, {
-		x: 6,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 7
-	}, {
-		x: 7,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 8
 	}];
 
-	this.buildGrid();
-}
+	var gridOptions = {
+		cellHeight: 80
+	};
 
-Home.prototype.buildGrid = function() {
-	$('.grid-stack').gridstack(this.gridOptions);
+	$('.grid-stack').gridstack(gridOptions);
 
 	this.lights = GridStackUI.Utils.sort(this.lights);
 
