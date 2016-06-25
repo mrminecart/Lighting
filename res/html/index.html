@@ -12,6 +12,7 @@
     <link href=../css/lib/jquery-ui.min.css rel="stylesheet">
     <link href=../css/lib/gridstack.min.css rel="stylesheet">
     <link href=../css/lib/bootstrap-switch.min.css rel="stylesheet">
+    <link href=../css/lib/bootstrap-select.min.css rel="stylesheet">
     <link href=../css/main.css rel="stylesheet">
   </head>
   <body>
@@ -28,6 +29,11 @@
             <li><a href="manual.html">Manual</a></li>
             <li><a href="#">Live</a></li>
           </ul>
+
+          <div class="navbar-form navbar-right">
+            <button class="btn btn-primary" data-toggle="modal" data-target="#myModal">Add Fixture</button>
+          </div>
+
         </div>
       </div>
     </nav>
@@ -62,8 +68,8 @@
           <div role="tabpanel" class="tab-pane active" id="channels">
 
             <div style="padding: 5px 5px 5px 5px">
-              <div style="float:left; width: 140px; margin: 5px 5px 5px 5px; background-color: #666166; border-radius: 3px">
-                <table class="table table-condensed" style="margin-bottom: 2px;width: 100%">
+              <div style="float:left;" class="dip-switch-container">
+                <table class="table table-condensed">
                   <tr><td width=30>1</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="1"></td><td>1</td></tr>
                   <tr><td>2</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="2"></td><td>2</td></tr>
                   <tr><td>3</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="4"></td><td>4</td></tr>
@@ -75,7 +81,7 @@
                   <tr><td>9</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="256"></td><td>256</td></tr>
                 </table>
 
-                <input type="number" max=512 min=0 class="form-control input-sm" value=0 id="dip-switch-input"></input>
+                <input type="number" max=512 min=0 class="form-control input-sm dip-switch-input" value=0></input>
               </div>
               <div>
                 lalala
@@ -95,6 +101,67 @@
 
     </div>
 
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+      <div class="modal-dialog" role="document">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">New Fixture</h4>
+          </div>
+          <div class="modal-body">
+            
+            <form>
+              <div class="form-group">
+                <label for="fixure-name">Fixture Name</label>
+                <input type="text" class="form-control" id="fixure-name" placeholder="Name">
+              </div>
+
+              <div class="form-group">
+                <label for="fixure-name">Fixture Type</label>
+                <br>
+                <select class="selectpicker" data-style="btn-primary" data-width="100%" title="Choose one of the following...">
+                  <option data-tokens="none_none">Please Select Fixture Type</option>
+                  <optgroup label="CHAUVET">
+                    <option data-tokens="chauvet_led-rain-64">LED Rain 64</option>
+                  </optgroup>
+                  <optgroup label="Mini LED">
+                    <option data-tokens="mini-led_p046">PO46</option>
+                  </optgroup>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label for="fixure-channel">DMX Channel</label>
+                <br>
+                <div class="dip-switch-container dark">
+                  <table class="table table-condensed">
+                    <tr><td width=30>1</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="1"></td><td>1</td></tr>
+                    <tr><td>2</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="2"></td><td>2</td></tr>
+                    <tr><td>3</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="4"></td><td>4</td></tr>
+                    <tr><td>4</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="8"></td><td>8</td></tr>
+                    <tr><td>5</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="16"></td><td>16</td></tr>
+                    <tr><td>6</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="32"></td><td>32</td></tr>
+                    <tr><td>7</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="64"></td><td>64</td></tr>
+                    <tr><td>8</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="128"></td><td>128</td></tr>
+                    <tr><td>9</td><td><input type="checkbox" class="dip-switch" data-size="mini" data-off-color="none" channel="256"></td><td>256</td></tr>
+                  </table>
+
+                  <input type="number" max=512 min=0 class="form-control input-sm dip-switch-input" value=0></input>
+                  </div>
+              </div>
+
+            </form>
+
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            <button type="button" class="btn btn-primary">Save</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
     <script>
       require('../js/util/inspector-tools.js');
       window.$ = window.jQuery = require('../js/lib/jquery.min.js');
@@ -103,6 +170,7 @@
       require('../js/lib/bootstrap.min.js');
       require('../js/lib/gridstack.min.js');
       require('../js/lib/bootstrap-switch.min.js');
+      require('../js/lib/bootstrap-select.min.js');
       require('../js/home/home.js');
     </script>
   </body>

@@ -18,38 +18,45 @@ Home.prototype.init = function() {
 Home.prototype.listenForDipSwitch = function() {
 	var _this = this;
 
-	$("#dip-switch-input").bind("input", function() {
-		_this.buildDip($(this).val())
+	$(".dip-switch-input").bind("input", function() {
+		_this.buildDip($(this))
 	})
 
 	$(".dip-switch").on("switchChange.bootstrapSwitch", function() {
 		var value = 0;
 
-		$(".dip-switch").each(function() {
+
+		var container = $(this).closest(".dip-switch-container")
+
+		container.find(".dip-switch").each(function() {
 			if ($(this).prop("checked")) {
 				value += parseInt($(this).attr("channel"));
 			}
 		})
 
-		$("#dip-switch-input").val(value)
+		container.find(".dip-switch-input").val(value)
+
 	})
 }
 
-Home.prototype.buildDip = function(value) {
+Home.prototype.buildDip = function(elem) {
 
+	var container = elem.closest(".dip-switch-container")
+
+	var wantedValue = elem.val();
 	var curentValue = 0;
 
 	// Clear
-	$(".dip-switch").each(function() {
+	container.find(".dip-switch").each(function() {
 		if ($(this).prop("checked")) {
 			$(this).click()
 		}
 	})
 
 	//Set
-	$($(".dip-switch").get().reverse()).each(function() {
+	$(container.find(".dip-switch").get().reverse()).each(function() {
 
-		if (curentValue + parseInt($(this).attr("channel")) <= value) {
+		if (curentValue + parseInt($(this).attr("channel")) <= wantedValue) {
 			$(this).click();
 
 			curentValue += parseInt($(this).attr("channel"));

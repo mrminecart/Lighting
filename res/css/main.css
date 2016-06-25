@@ -35,3 +35,19 @@ body {
   background-color: #2e2e2e;
   border-bottom: 1px solid #222222;
 }
+
+/* Dip Switch */
+.dip-switch-container{
+	width: 140px; 
+	background-color: #666166; 
+	border-radius: 3px;
+}
+
+.dip-switch-container.dark{
+	background-color: #444144; 
+}
+
+.dip-switch-container table{
+	margin-bottom: 2px;
+	width: 100%
+}
