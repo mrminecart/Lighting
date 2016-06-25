@@ -2,8 +2,6 @@ const remote = require('electron').remote;
 
 var debug = require("debug")("li:util:inspector")
 
-debug("Yo")
-
 document.addEventListener("keydown", function (e) {
 	if (e.which === 123) {
 		debug("Opening dev tools")

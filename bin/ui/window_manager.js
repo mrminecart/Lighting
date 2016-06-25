@@ -1,7 +1,7 @@
 const electron = require('electron')
 const BrowserWindow = electron.BrowserWindow
 
-const debug = require('debug')("li:wm");
+const debug = require('debug')("li:ui:window_manager");
 const path = require('path')
 
 var WindowManager = function(){
@@ -16,7 +16,9 @@ WindowManager.prototype.createWindow = function(){
   debug("Creating window...")
 
   // Create the browser window.
-  this.mainWindow = new BrowserWindow({width: 1280, height: 800, minWidth: 1280, minHeight: 800})
+  this.mainWindow = new BrowserWindow({width: 1280, height: 800, minWidth: 1280, minHeight: 800, backgroundColor: '#222222'})
+
+  this.mainWindow.maximize()
 
   // and load the index.html of the app.
   this.mainWindow.loadURL(this.indexUrl)

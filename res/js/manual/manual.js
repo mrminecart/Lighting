@@ -1,6 +1,6 @@
 var remote = require('electron').remote;
 var Slider = require('../lib/bootstrap-slider.js');
-const debug = require('debug')("li:client:index");
+const debug = require('debug')("li:client:manual");
 const app = remote.getGlobal('app_main');
 var html = "";
 

@@ -1,4 +1,4 @@
-const debug = require('debug')("li:dmx");
+const debug = require('debug')("li:dmx:dmx_manager");
 const redis = require("redis");
 const path = require("path");
 const spawn = require('child_process').spawn;

@@ -1,5 +1,5 @@
 const remote = require('electron').remote;
-const debug = require('debug')("li:client:index");
+const debug = require('debug')("li:client:home");
 const app = remote.getGlobal('app_main');
 
 var Home = function() {
