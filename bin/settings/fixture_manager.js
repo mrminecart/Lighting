@@ -53,4 +53,22 @@ FixtureManager.prototype.addFixture = function(options) {
   return [0, "New fixture added!"];
 }
 
+FixtureManager.prototype.saveFixtureGrid = function(grid){
+  for (var i = 0; i < this.parent.settings.fixtures.length; i++) {
+    for (var k = 0; k < grid.length; k++) {
+      if(grid[k].id == this.parent.settings.fixtures[i].id){
+
+        debug("Updating " + this.parent.settings.fixtures[i].data.name)
+
+        this.parent.settings.fixtures[i].x = grid[k].x;
+        this.parent.settings.fixtures[i].y = grid[k].y;
+        this.parent.settings.fixtures[i].width = grid[k].width;
+        this.parent.settings.fixtures[i].height = grid[k].height;
+      }
+    }
+  }
+
+  this.parent.settings.saveFixtures();
+}
+
 module.exports = FixtureManager;

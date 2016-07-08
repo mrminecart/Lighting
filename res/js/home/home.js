@@ -15,6 +15,8 @@ Home.prototype.init = function() {
 	this.listenForDipSwitch();
 
 	this.listenForNewFixture();
+
+	$("#grid-save-button").click(this.saveGrid.bind(this));
 }
 
 Home.prototype.listenForDipSwitch = function() {
@@ -83,7 +85,7 @@ Home.prototype.buildGrid = function() {
 	grid.removeAll();
 
 	_.each(this.fixtures, function(node) {
-		grid.addWidget($('<div><div class="grid-stack-item-content" fid="' + node.id + '">' + node.data.name + '</div></div>'),
+		grid.addWidget($('<div fid="' + node.id + '"><div class="grid-stack-item-content">' + node.data.name + '</div></div>'),
 			node.x, node.y, node.width, node.height);
 	});
 }
@@ -93,13 +95,15 @@ Home.prototype.saveGrid = function(){
 	    el = $(el);
 	    var node = el.data('_gridstack_node');
 	    return {
-	        id: el.attr('data-custom-id'),
+	        id: el.attr('fid'),
 	        x: node.x,
 	        y: node.y,
 	        width: node.width,
 	        height: node.height
 	    };
 	});
+
+	app.fixture_manager.saveFixtureGrid(res);
 }
 
 Home.prototype.listenForNewFixture = function(){
