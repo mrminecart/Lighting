@@ -4,7 +4,7 @@ const path = require("path");
 const spawn = require('child_process').spawn;
 
 const DmxManager = function(){
-	debug("Starting...");
+	debug("Starting DMX...");
 
 	this.init();
 }

@@ -1,13 +1,13 @@
 const debug = require('debug')("li:settings:settings_manager");
 const path = require('path');
 const fs = require('fs');
-const electron = require('electron');
-const app = electron.app;
+var SettingsManager = function(parent, app){
 
-var SettingsManager = function(){
+  this.parent = parent;
+  this.app = app;
 
   this.settings = {};
-  this.lights = [];
+  this.fixtures = [];
 
   this.init();
 }
@@ -16,17 +16,17 @@ SettingsManager.prototype.init = function(){
 
   debug("Loading settings...")
 
-  var home_folder = app.getPath("home");
+  var home_folder = this.app.getPath("home");
   this.conf_folder = path.join(home_folder, ".lighting");
   this.settingsFileLocation = path.join(this.conf_folder, "settings.json")
-  this.lightsFileLocation = path.join(this.conf_folder, "lights.json")
+  this.fixturesFileLocation = path.join(this.conf_folder, "fixtures.json")
 
   debug("Using " + home_folder + " as home folder");
 
   this.makeHomeFolder();
 
   this.loadSettings();
-  this.loadLights();
+  this.loadFixtures();
 
 }
 
@@ -65,7 +65,6 @@ SettingsManager.prototype.loadSettings = function(){
   debug("Settings loaded!");
 
   this.saveSettings();
-
 }
 
 SettingsManager.prototype.saveSettings = function(){
@@ -79,13 +78,13 @@ SettingsManager.prototype.saveSettings = function(){
   debug("Settings saved!");
 }
 
-SettingsManager.prototype.loadLights = function(){
-  debug("Loading lights...");
+SettingsManager.prototype.loadFixtures = function(){
+  debug("Loading fixtures...");
 
-  var text = "{}"; 
+  var text = "[]"; 
 
   try{
-    text = fs.readFileSync(this.lightsFileLocation,'utf8')
+    text = fs.readFileSync(this.fixturesFileLocation,'utf8')
   } catch(e){}
 
   var data = null;
@@ -93,26 +92,26 @@ SettingsManager.prototype.loadLights = function(){
   try{
     data = JSON.parse(text);
   }catch(e){
-    debug("Got invalid JSON for lights! Ignoring...")
+    debug("Got invalid JSON for fixtures! Ignoring...")
     data = {};
   }
 
-  this.lights = data;
+  this.fixtures = data;
 
-  debug("Lights loaded!");
+  debug("Fixtures loaded! Found " + this.fixtures.length);
 
-  this.saveLights();
+  this.saveFixtures();
 }
 
-SettingsManager.prototype.saveLights = function(){
+SettingsManager.prototype.saveFixtures = function(){
 
-  debug("Saving lights...");
+  debug("Saving fixtures...");
 
-  var text = JSON.stringify(this.lights, null, 4);
+  var text = JSON.stringify(this.fixtures, null, 4);
 
-  fs.writeFileSync(this.lightsFileLocation, text, 'utf8');
+  fs.writeFileSync(this.fixturesFileLocation, text, 'utf8');
 
-  debug("Lights saved!");
+  debug("Fixtures saved!");
 }
 
 module.exports = SettingsManager;

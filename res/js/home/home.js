@@ -1,5 +1,5 @@
-const remote = require('electron').remote;
 const debug = require('debug')("li:client:home");
+const remote = require('electron').remote;
 const app = remote.getGlobal('app_main');
 
 var Home = function() {
@@ -13,6 +13,8 @@ Home.prototype.init = function() {
 	this.buildGrid();
 
 	this.listenForDipSwitch();
+
+	this.listenForNewFixture();
 }
 
 Home.prototype.listenForDipSwitch = function() {
@@ -67,13 +69,7 @@ Home.prototype.buildDip = function(elem) {
 
 Home.prototype.buildGrid = function() {
 
-	this.lights = [{
-		x: 0,
-		y: 0,
-		width: 1,
-		height: 1,
-		some_other_thing: 1
-	}];
+	this.fixtures = app.settings.fixtures;
 
 	var gridOptions = {
 		cellHeight: 80
@@ -81,15 +77,48 @@ Home.prototype.buildGrid = function() {
 
 	$('.grid-stack').gridstack(gridOptions);
 
-	this.lights = GridStackUI.Utils.sort(this.lights);
+	this.fixtures = GridStackUI.Utils.sort(this.fixtures);
 
 	var grid = $('.grid-stack').data('gridstack');
 	grid.removeAll();
 
-	_.each(this.lights, function(node) {
-		grid.addWidget($('<div><div class="grid-stack-item-content">' + node.some_other_thing + '</div></div>'),
+	_.each(this.fixtures, function(node) {
+		grid.addWidget($('<div><div class="grid-stack-item-content" fid="' + node.id + '">' + node.data.name + '</div></div>'),
 			node.x, node.y, node.width, node.height);
 	});
+}
+
+Home.prototype.saveGrid = function(){
+	var res = _.map($('.grid-stack .grid-stack-item:visible'), function (el) {
+	    el = $(el);
+	    var node = el.data('_gridstack_node');
+	    return {
+	        id: el.attr('data-custom-id'),
+	        x: node.x,
+	        y: node.y,
+	        width: node.width,
+	        height: node.height
+	    };
+	});
+}
+
+Home.prototype.listenForNewFixture = function(){
+	$("#add-new-fixture-button").click(function(){
+
+		var output = app.fixture_manager.addFixture({
+			channel: $("#new-fixture-channel").val(),
+			name: $("#new-fixture-name").val(),
+			type: $("#new-fixture-type").val()
+		});
+
+		if(output[0] !== 0){
+			$("#new-fixture-error").show().text(output[1]);
+		}else{
+			$("#createFixtureModal").modal("hide")
+			$("#new-fixture-error").hide();
+		}
+
+	})
 }
 
 $(function() {

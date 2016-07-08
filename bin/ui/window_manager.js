@@ -18,7 +18,8 @@ WindowManager.prototype.createWindow = function(){
   // Create the browser window.
   this.mainWindow = new BrowserWindow({width: 1280, height: 800, minWidth: 1280, minHeight: 800, backgroundColor: '#222222'})
 
-  this.mainWindow.maximize()
+  // this.mainWindow.maximize()
+  this.mainWindow.setMenu(null);
 
   // and load the index.html of the app.
   this.mainWindow.loadURL(this.indexUrl)
@@ -27,7 +28,6 @@ WindowManager.prototype.createWindow = function(){
     process.exit(0)
   })
 
-  this.mainWindow.setMenu(null);
 
   // this.mainWindow.webContents.openDevTools()
 }

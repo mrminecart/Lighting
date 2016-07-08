@@ -19,6 +19,7 @@
     "debug": "^2.2.0",
     "dmx": "git+https://github.com/wiedi/node-dmx.git",
     "hue": "0.0.0",
-    "redis": "^2.6.1"
+    "redis": "^2.6.1",
+    "uuid": "^2.0.2"
   }
 }
