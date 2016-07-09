@@ -8,103 +8,45 @@ var Home = function() {
 
 Home.prototype.init = function() {
 
-	$(".dip-switch").bootstrapSwitch()
-
-	this.buildGrid();
-
-	this.listenForDipSwitch();
-
 	this.listenForNewFixture();
 
-	$("#grid-save-button").click(this.saveGrid.bind(this));
+	this.listenForWidgetClick();
+
+	$(".fixture-widget").first().click();
+
 }
 
-Home.prototype.listenForDipSwitch = function() {
-	var _this = this;
+Home.prototype.listenForWidgetClick = function(){
 
-	$(".dip-switch-input").bind("input", function() {
-		_this.buildDip($(this))
-	})
+	var widgetClick = function(elem){
+		$(".fixture-widget").removeClass("active");
 
-	$(".dip-switch").on("switchChange.bootstrapSwitch", function() {
-		var value = 0;
+		debug(elem.html())
 
+		elem.addClass("active");
 
-		var container = $(this).closest(".dip-switch-container")
+		this.displayFixtureInfo(elem.parent().attr("fid"));
+	}.bind(this)
 
-		container.find(".dip-switch").each(function() {
-			if ($(this).prop("checked")) {
-				value += parseInt($(this).attr("channel"));
-			}
-		})
+	$('.grid-stack').on('dragstart', function(event, ui) {
+	    widgetClick($(event.target).find(".fixture-widget"));
+	}.bind(this));
 
-		container.find(".dip-switch-input").val(value)
-
-	})
+	$(document).on("click", ".fixture-widget", function(event){
+		widgetClick($(event.target));
+	}.bind(this));
 }
 
-Home.prototype.buildDip = function(elem) {
+Home.prototype.displayFixtureInfo = function(fid){
+	var fix = app.fixture_manager.getFixture(fid);
 
-	var container = elem.closest(".dip-switch-container")
+	debug(fix);
 
-	var wantedValue = elem.val();
-	var curentValue = 0;
-
-	// Clear
-	container.find(".dip-switch").each(function() {
-		if ($(this).prop("checked")) {
-			$(this).click()
-		}
-	})
-
-	//Set
-	$(container.find(".dip-switch").get().reverse()).each(function() {
-
-		if (curentValue + parseInt($(this).attr("channel")) <= wantedValue) {
-			$(this).click();
-
-			curentValue += parseInt($(this).attr("channel"));
-		}
-
-	})
+	// Set dip switch
+	$("#home-footer-dip-switch-value").val(fix.data.channel);
+	$("#home-footer-dip-switch-value").trigger("input")
 }
 
-Home.prototype.buildGrid = function() {
-
-	this.fixtures = app.settings.fixtures;
-
-	var gridOptions = {
-		cellHeight: 80
-	};
-
-	$('.grid-stack').gridstack(gridOptions);
-
-	this.fixtures = GridStackUI.Utils.sort(this.fixtures);
-
-	var grid = $('.grid-stack').data('gridstack');
-	grid.removeAll();
-
-	_.each(this.fixtures, function(node) {
-		grid.addWidget($('<div fid="' + node.id + '"><div class="grid-stack-item-content">' + node.data.name + '</div></div>'),
-			node.x, node.y, node.width, node.height);
-	});
-}
-
-Home.prototype.saveGrid = function(){
-	var res = _.map($('.grid-stack .grid-stack-item:visible'), function (el) {
-	    el = $(el);
-	    var node = el.data('_gridstack_node');
-	    return {
-	        id: el.attr('fid'),
-	        x: node.x,
-	        y: node.y,
-	        width: node.width,
-	        height: node.height
-	    };
-	});
-
-	app.fixture_manager.saveFixtureGrid(res);
-}
 
 Home.prototype.listenForNewFixture = function(){
 	$("#add-new-fixture-button").click(function(){
@@ -120,6 +62,9 @@ Home.prototype.listenForNewFixture = function(){
 		}else{
 			$("#createFixtureModal").modal("hide")
 			$("#new-fixture-error").hide();
+
+			// TEMPORARY
+			window.location.reload();
 		}
 
 	})

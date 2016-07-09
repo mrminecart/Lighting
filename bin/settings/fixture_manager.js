@@ -3,7 +3,7 @@ const electron = require('electron');
 const app = electron.app;
 const uuid = require('uuid');
 
-var FixtureManager = function(parent, app){
+var FixtureManager = function(parent, app) {
 
   this.parent = parent;
   this.app = app;
@@ -17,6 +17,24 @@ FixtureManager.prototype.init = function() {
 
   debug("Fixture Manager Loaded!")
 
+}
+
+FixtureManager.prototype.getFixture = function(fid) {
+
+  var fix = null;
+
+  for (var i = 0; i < this.parent.settings.fixtures.length; i++) {
+    if (fid == this.parent.settings.fixtures[i].id) {
+      var fix = this.parent.settings.fixtures[i];
+      break;
+    }
+  }
+
+  if(!fix){
+    return fix;
+  }
+
+  return fix
 }
 
 FixtureManager.prototype.addFixture = function(options) {
@@ -53,10 +71,10 @@ FixtureManager.prototype.addFixture = function(options) {
   return [0, "New fixture added!"];
 }
 
-FixtureManager.prototype.saveFixtureGrid = function(grid){
+FixtureManager.prototype.saveFixtureGrid = function(grid) {
   for (var i = 0; i < this.parent.settings.fixtures.length; i++) {
     for (var k = 0; k < grid.length; k++) {
-      if(grid[k].id == this.parent.settings.fixtures[i].id){
+      if (grid[k].id == this.parent.settings.fixtures[i].id) {
 
         debug("Updating " + this.parent.settings.fixtures[i].data.name)
 

@@ -1,5 +1,5 @@
 .grid-stack-item-content{
-	background-color: #afaaaf
+	background-color: #444144
 }
 
 
@@ -50,4 +50,8 @@ body {
 .dip-switch-container table{
 	margin-bottom: 2px;
 	width: 100%
+}
+
+.fixture-widget.active{
+  background-color: #7f777f;
 }
