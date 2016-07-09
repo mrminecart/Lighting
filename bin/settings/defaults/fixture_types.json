@@ -1,0 +1,90 @@
+{
+	"chauvet_led-rain-64": {
+		"manufacturer": "CHAUVET",
+		"name": "LED Rain 64",
+		"channels": [
+			{
+				"name": "Red",
+				"type": "rgb_red"
+			},
+			{
+				"name": "Green",
+				"type": "rgb_green"
+			},
+			{
+				"name": "Blue",
+				"type": "rgb_blue"
+			},
+			{
+				"name": "Colour Preset",
+				"type": "colour_preset"
+			},
+			{
+				"name": "Shutter",
+				"type": "shutter"
+			},
+			{
+				"name": "Programs",
+				"type": "programs"
+			}
+		]
+	},
+	"mini_led-p046": {
+		"manufacturer": "Mini LED",
+		"name": "P046",
+		"channels": [
+			{
+				"name": "Pan",
+				"type": "move_pan"
+			},
+			{
+				"name": "Fine Pan",
+				"type": "move_fine_pan"
+			},
+			{
+				"name": "Tilt",
+				"type": "move_tilt"
+			},
+			{
+				"name": "Fine Tilt",
+				"type": "move_fine_tilt"
+			},
+			{
+				"name": "Move Speed",
+				"type": "move_speed"
+			},
+			{
+				"name": "Shutter/Brightness",
+				"type": "shutter_brightness_combo"
+			},
+			{
+				"name": "Red",
+				"type": "rgb_red"
+			},
+			{
+				"name": "Green",
+				"type": "rgb_green"
+			},
+			{
+				"name": "Blue",
+				"type": "rgb_blue"
+			},
+			{
+				"name": "Colour Preset",
+				"type": "colour_preset"
+			},
+			{
+				"name": "Preset Speed",
+				"type": "colour_preset_speed"
+			},
+			{
+				"name": "Programs",
+				"type": "programs"
+			},
+			{
+				"name": "Gobo Selector",
+				"type": "gobo_selector"
+			}
+		]
+	}
+}

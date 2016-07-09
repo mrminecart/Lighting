@@ -7,7 +7,6 @@ var SettingsManager = function(parent, app){
   this.app = app;
 
   this.settings = {};
-  this.fixtures = [];
 
   this.init();
 }
@@ -19,14 +18,12 @@ SettingsManager.prototype.init = function(){
   var home_folder = this.app.getPath("home");
   this.conf_folder = path.join(home_folder, ".lighting");
   this.settingsFileLocation = path.join(this.conf_folder, "settings.json")
-  this.fixturesFileLocation = path.join(this.conf_folder, "fixtures.json")
 
   debug("Using " + home_folder + " as home folder");
 
   this.makeHomeFolder();
 
   this.loadSettings();
-  this.loadFixtures();
 
 }
 
@@ -76,42 +73,6 @@ SettingsManager.prototype.saveSettings = function(){
   fs.writeFileSync(this.settingsFileLocation, text, 'utf8');
 
   debug("Settings saved!");
-}
-
-SettingsManager.prototype.loadFixtures = function(){
-  debug("Loading fixtures...");
-
-  var text = "[]"; 
-
-  try{
-    text = fs.readFileSync(this.fixturesFileLocation,'utf8')
-  } catch(e){}
-
-  var data = null;
-
-  try{
-    data = JSON.parse(text);
-  }catch(e){
-    debug("Got invalid JSON for fixtures! Ignoring...")
-    data = {};
-  }
-
-  this.fixtures = data;
-
-  debug("Fixtures loaded! Found " + this.fixtures.length);
-
-  this.saveFixtures();
-}
-
-SettingsManager.prototype.saveFixtures = function(){
-
-  debug("Saving fixtures...");
-
-  var text = JSON.stringify(this.fixtures, null, 4);
-
-  fs.writeFileSync(this.fixturesFileLocation, text, 'utf8');
-
-  debug("Fixtures saved!");
 }
 
 module.exports = SettingsManager;

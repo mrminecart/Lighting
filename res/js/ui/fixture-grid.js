@@ -19,7 +19,7 @@ FixtureGrid.prototype.init = function() {
 
 FixtureGrid.prototype.buildGrid = function() {
 
-	this.fixtures = app.settings.fixtures;
+	this.fixtures = app.fixture_manager.fixtures;
 
 	var gridOptions = {
 		cellHeight: 80

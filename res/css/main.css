@@ -52,6 +52,12 @@ body {
 	width: 100%
 }
 
+.fixture-widget{
+  display:flex;
+  align-items: center; /* Vertical center alignment */
+  justify-content: center; /* Horizontal center alignment */
+}
+
 .fixture-widget.active{
   background-color: #7f777f;
 }
