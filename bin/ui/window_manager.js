@@ -8,7 +8,8 @@ var WindowManager = function(){
     debug("Window manager loaded")
 
     this.mainWindow
-    this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/index.html";
+    this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/program.html";
+    // this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/index.html";
 }
 
 WindowManager.prototype.createWindow = function(){

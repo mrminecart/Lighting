@@ -32,21 +32,16 @@
           </ul>
 
           <div class="navbar-form navbar-right">
-            <button class="btn btn-primary" data-toggle="modal" data-target="#createFixtureModal">Add Fixture</button>
-            <button class="btn btn-primary">Add Fixture Type</button>
-            <button class="btn btn-info" id="grid-save-button" style="display: none">Save</button>
+            <button class="btn btn-default" data-toggle="modal" data-target="#createFixtureModal">New</button>
+            <button class="btn btn-default">Load</button>
+            <button class="btn btn-info" id="program-save-button" style="display: none">Save</button>
           </div>
 
         </div>
       </div>
     </nav>
 
-    <br>
-    <br>
-    <br>
-    <br>
-
-    <h1>Programmings!</h1>
+    <div style="margin-top: 60px" id="program-main-editor"></div>
 
 
     <script>
@@ -57,6 +52,8 @@
       require('../js/lib/bootstrap.min.js');
       require('../js/lib/bootstrap-switch.min.js');
       require('../js/lib/bootstrap-select.min.js');
+      require('../js/lib/pixi.js');
+      require('../js/program/program_renderer.js');
       require('../js/program/program.js');
     </script>
   </body>

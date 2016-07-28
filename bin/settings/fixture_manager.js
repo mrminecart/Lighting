@@ -39,7 +39,7 @@ FixtureManager.prototype.getTypesGroupByManufacturer = function(tid){
 
   for (var i = 0; i < keys.length; i++) {
 
-    debug(this.fixture_types[keys[i]].manufacturer)
+    // debug(this.fixture_types[keys[i]].manufacturer)
 
     if(!(this.fixture_types[keys[i]].manufacturer in grouped)){
       grouped[this.fixture_types[keys[i]].manufacturer] = [];
