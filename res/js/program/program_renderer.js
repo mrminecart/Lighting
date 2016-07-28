@@ -37,7 +37,7 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 	}
 
 	this.width = this.elem.width();
-	this.height = 300;
+	this.height = 600;
 
 	this.renderer = PIXI.autoDetectRenderer(this.width, this.height, {
 		backgroundColor: 0x111111
@@ -56,6 +56,9 @@ ProgramRenderer.prototype.listenForResize = function(){
 		this.width = this.elem.width();
 
 		this.renderer.resize(this.width, this.height)
+
+		this.resize();
+
 	}.bind(this))
 }
 
@@ -74,6 +77,10 @@ ProgramRenderer.prototype.draw = function(){
 	this.renderer.render(this.stage);
 
 	requestAnimationFrame(this.draw.bind(this));
+}
+
+ProgramRenderer.prototype.resize = function(){
+	this.buildTimeline();
 }
 
 ProgramRenderer.prototype.buildLayout = function(){
@@ -104,7 +111,7 @@ ProgramRenderer.prototype.buildTimeline = function(){
 
 	for (var i = 0; i < this.options.bars; i++) {
 		this.lg.beginFill(darkBar ? 0x505050 : 0x4a4a4a);
-		this.lg.drawRect(this.options.sideWidth + (width / this.options.bars) * i, 0, width / this.options.bars, 300);
+		this.lg.drawRect(this.options.sideWidth + (width / this.options.bars) * i, 0, width / this.options.bars, this.height);
 		this.lg.endFill();
 
 		darkBar = !darkBar;
@@ -112,7 +119,7 @@ ProgramRenderer.prototype.buildTimeline = function(){
 
 	for (var i = 0; i < this.options.bars * 4; i++) {
 		this.lg.beginFill(0x444444);
-		this.lg.drawRect(this.options.sideWidth + (width / this.options.bars) / 4 * i, 0, 1, 300);
+		this.lg.drawRect(this.options.sideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.height);
 		this.lg.endFill();
 	}
 
@@ -135,12 +142,17 @@ ProgramRenderer.prototype.buildCursor = function(){
 }
 
 ProgramRenderer.prototype.tick = function(){
+	this.time = new Date().getTime() - this.timeOffset;
+
 	this.drawCursor();
 
-	this.cursor.pos += 0.1;
 }
 
 ProgramRenderer.prototype.drawCursor = function(){
+	var cursorMoveTime = this.options.bars * 60 / this.options.bpm * 4
+
+	this.cursor.pos = ((this.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
+
 	this.cg.clear();
 	this.cg.beginFill(0xdd2222);
 	this.cg.drawRect(this.options.sideWidth + ((this.width - this.options.sideWidth) * (this.cursor.pos / 100)), 0, 1, this.height);
