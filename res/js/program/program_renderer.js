@@ -21,19 +21,10 @@ ProgramRenderer.prototype.init = function(callback) {
 	 */
 	this.buildStage(callback);
 	this.listenForResize();
-	
-	/**
-	 * Get Graphics
-	 */
-	this.lg = new PIXI.Graphics();
-	this.cg = new PIXI.Graphics();
-	this.stage.addChild(this.lg);
-	this.stage.addChild(this.cg);
-
-	/**
-	 * Draw
-	 */
 	this.buildLayout();
+	this.buildCursor();
+
+	this.draw();
 
 	debug("Renderer ready!");
 }
@@ -56,8 +47,6 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 
 	this.stage = new PIXI.Container();
 
-	this.draw();
-
 	callback(null, null);
 }
 
@@ -72,21 +61,28 @@ ProgramRenderer.prototype.listenForResize = function(){
 
 ProgramRenderer.prototype.buildDefaultOptions = function(){
 	return {
+		running: true,
+		bpm: 120,
 		bars: 4,
-		sideWidth: 300,
-		cursor: {
-			position: 0
-		}
+		sideWidth: 300
 	}
 }
 
 ProgramRenderer.prototype.draw = function(){
+	this.tick();
+
 	this.renderer.render(this.stage);
 
 	requestAnimationFrame(this.draw.bind(this));
 }
 
 ProgramRenderer.prototype.buildLayout = function(){
+	/**
+	 * Get Graphics
+	 */
+	this.lg = new PIXI.Graphics();
+	this.stage.addChild(this.lg);
+
 	this.buildTimeline();
 	this.buildSidebar();
 }
@@ -125,4 +121,28 @@ ProgramRenderer.prototype.buildTimeline = function(){
 		this.lg.drawRect(this.options.sideWidth, this.height / 10 * i, width, 1);
 		this.lg.endFill();
 	}
+}
+
+ProgramRenderer.prototype.buildCursor = function(){
+	this.cg = new PIXI.Graphics();
+	this.stage.addChild(this.cg);
+
+	this.cursor = {
+		pos: 0
+	}
+
+	this.timeOffset = new Date().getTime();
+}
+
+ProgramRenderer.prototype.tick = function(){
+	this.drawCursor();
+
+	this.cursor.pos += 0.1;
+}
+
+ProgramRenderer.prototype.drawCursor = function(){
+	this.cg.clear();
+	this.cg.beginFill(0xdd2222);
+	this.cg.drawRect(this.options.sideWidth + ((this.width - this.options.sideWidth) * (this.cursor.pos / 100)), 0, 1, this.height);
+	this.cg.endFill();
 }
