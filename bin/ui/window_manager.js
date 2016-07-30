@@ -27,7 +27,9 @@ WindowManager.prototype.createWindow = function(){
   this.mainWindow.on('closed', function () {
     process.exit(0)
   })
-  
+
+  this.mainWindow.maximize();
+
   // this.mainWindow.webContents.openDevTools()
 }
 

@@ -15,8 +15,10 @@ ProgramRenderer = function(elem, options, callback) {
 
 	if (!callback) {
 		callback = options;
-		this.options = this.buildDefaultOptions();
+		this.options = {};
 	}
+
+	this.options = this.buildOptions(this.options);
 
 	this.init(callback);
 }
@@ -73,8 +75,9 @@ ProgramRenderer.prototype.listenForResize = function() {
 	}.bind(this))
 }
 
-ProgramRenderer.prototype.buildDefaultOptions = function() {
-	return {
+ProgramRenderer.prototype.buildOptions = function(options) {
+
+	var obj = {
 		running: true,
 		bpm: 120,
 		bars: 4,
@@ -82,6 +85,10 @@ ProgramRenderer.prototype.buildDefaultOptions = function() {
 		rightSideWidth: 200,
 		lineHeight: 50
 	}
+
+	for (var attrname in options) { obj[attrname] = options[attrname]; }
+
+	return obj;
 }
 
 ProgramRenderer.prototype.draw = function() {
