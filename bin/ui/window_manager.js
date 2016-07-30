@@ -7,7 +7,6 @@ const path = require('path')
 var WindowManager = function(){
     debug("Window manager loaded")
 
-    this.mainWindow
     this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/program.html";
     // this.indexUrl = "file://" + path.dirname(__dirname) + "/../res/html/index.html";
 }
@@ -28,8 +27,7 @@ WindowManager.prototype.createWindow = function(){
   this.mainWindow.on('closed', function () {
     process.exit(0)
   })
-
-
+  
   // this.mainWindow.webContents.openDevTools()
 }
 

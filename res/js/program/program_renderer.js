@@ -7,6 +7,7 @@ ProgramRenderer = function(elem, options, callback) {
 	this.options = options;
 	this.height = this.elem.height();
 
+	this.timing = {};
 	this.bottomBarHeight = 300;
 	this.timelineHeight = this.height - this.bottomBarHeight;
 
@@ -181,18 +182,21 @@ ProgramRenderer.prototype.buildCursor = function() {
 }
 
 ProgramRenderer.prototype.tick = function() {
-	this.time = new Date().getTime() - this.timeOffset;
+	var now = new Date().getTime();
+	this.timing.deltaTime = now - this.timing.lastTick;
+	this.timing.lastTick = now;
+
+	if (this.options.running) {
+		this.time = new Date().getTime() - this.timeOffset;
+	}else{
+		this.timeOffset += this.timing.deltaTime;
+	}
 
 	this.drawCursor();
 
 }
 
 ProgramRenderer.prototype.drawCursor = function() {
-
-	if(!this.options.running){
-		this.cg.clear();
-		return;
-	}
 
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth;
 	var cursorMoveTime = this.options.bars * 60 / this.options.bpm * 4
@@ -204,11 +208,11 @@ ProgramRenderer.prototype.drawCursor = function() {
 	this.cg.drawRect(this.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
 	this.cg.endFill();
 
-	// app.dmx.set({
-	// 	0: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 128) + 128,
-	// 	2: (Math.sin(this.cursor.pos / 50 * Math.PI * 2) * 64) + 128,
-	// 	5: 80,
-	// 	6: 255,
-	// 	12: (this.cursor.pos >= 50 ? 25 : 50)
-	// })
+	app.dmx.set({
+		0: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 128) + 128,
+		2: (Math.sin(this.cursor.pos / 50 * Math.PI * 2) * 64) + 128,
+		5: 40,
+		6: 255,
+		12: (this.cursor.pos >= 50 ? 25 : 50)
+	})
 }
