@@ -6,7 +6,7 @@ ProgramRenderer = function(elem, options, callback) {
 	this.elem = elem;
 	this.options = options;
 	this.height = this.elem.height();
-	this.timelineScroll = -25;
+	this.timelineScroll = 0;
 
 	this.time = 0;
 	this.bottomBarHeight = 300;
@@ -71,14 +71,6 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 	this.stage = new PIXI.Container();
 	this.stage.interactive = true;
 
-	this.stage.mouseup = this.stage.touchstop = function(event) {
-		if (this.tsbg) {
-			this.tsbg.dragging = false;
-		}
-
-		debug("Ello")
-	}.bind(this)
-
 	callback(null, null);
 }
 
@@ -89,6 +81,7 @@ ProgramRenderer.prototype.listenForResize = function() {
 			this.width = this.elem.width();
 			this.height = this.elem.height() - 1;
 			this.timelineHeight = this.height - this.bottomBarHeight;
+			this.timelineScroll = 0;
 
 			this.renderer.resize(this.width, this.height)
 
@@ -124,7 +117,7 @@ ProgramRenderer.prototype.draw = function() {
 }
 
 ProgramRenderer.prototype.resize = function() {
-	this.drawLayout(true);
+	this.drawLayout(true, false);
 }
 
 ProgramRenderer.prototype.buildLayout = function() {
@@ -133,22 +126,25 @@ ProgramRenderer.prototype.buildLayout = function() {
 	 */
 	this.bbg = new PIXI.Graphics();
 	this.bbg.interactive = true;
-	this.bbg.hitArea = this.bbg.getBounds();
 	this.stage.addChild(this.bbg);
 
 	this.tlg = new PIXI.Graphics();
 	this.tlg.interactive = true;
-	this.tlg.hitArea = this.tlg.getBounds();
 	this.stage.addChild(this.tlg);
+
+	this.tlrsg = new PIXI.Graphics();
+	this.tlrsg.interactive = true;
+	this.stage.addChild(this.tlrsg);
+
+	this.tlgbg = new PIXI.Graphics();
+	this.stage.addChild(this.tlgbg);
 
 	this.rsbg = new PIXI.Graphics();
 	this.rsbg.interactive = true;
-	this.rsbg.hitArea = this.rsbg.getBounds();
 	this.stage.addChild(this.rsbg);
 
 	this.lsbg = new PIXI.Graphics();
 	this.lsbg.interactive = true;
-	this.lsbg.hitArea = this.lsbg.getBounds();
 	this.stage.addChild(this.lsbg);
 
 	this.tsbbg = new PIXI.Graphics();
@@ -182,34 +178,35 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 		this.tsbbg.beginFill(0x252525);
 		this.tsbbg.drawRect(xpos, 0, this.timelineScrollBarWidth, this.timelineHeight);
 		this.tsbbg.endFill();
+
+
+		this.scrollBarHeight = 0;
+		var scrollBarPadding = 3;
+
+		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHight * this.timelineElements.length)
+
+		if (this.scrollBarHeight > 1) {
+			this.scrollBarHeight = 1;
+		}
+
+		this.scrollBarHeight = this.scrollBarHeight * this.timelineHeight
+
+		this.tsbg.clear();
+		this.tsbg.beginFill(0x555555);
+		this.tsbg.drawRect(xpos + scrollBarPadding, scrollBarPadding, this.timelineScrollBarWidth - (scrollBarPadding * 2), this.scrollBarHeight - (scrollBarPadding * 2));
+		this.tsbg.endFill();
+		this.tsbg.hitArea = this.tsbg.getBounds();
+		this.tsbg.position.y = 0;
+
 	}
-
-	var scrollBarHeight = 0;
-	var scrollBarPadding = 3;
-	var scrollBarPosition = 0;
-
-	scrollBarHeight = this.timelineHeight / (this.timelineElementHight * this.timelineElements.length)
-
-	if (scrollBarHeight > 1) {
-		scrollBarHeight = 1;
-	}
-
-	scrollBarHeight = scrollBarHeight * this.timelineHeight
-
-	this.tsbg.clear();
-	this.tsbg.beginFill(0x555555);
-	this.tsbg.drawRect(xpos + scrollBarPadding, scrollBarPosition + scrollBarPadding, this.timelineScrollBarWidth - (scrollBarPadding * 2), scrollBarHeight - (scrollBarPadding * 2));
-	this.tsbg.endFill();
-	this.tsbg.hitArea = this.tsbg.getBounds();
 
 	if (initial) {
 
 		var self = this;
 
 		this.tsbg.mousedown = this.tsbg.touchstart = function(event) {
-			this.alpha = 0.9;
+			this.alpha = 0.8;
 			self.tsbg.dragging = true;
-			this.sx = event.data.getLocalPosition(self.tsbg).x * self.tsbg.scale.x;
 			this.sy = event.data.getLocalPosition(self.tsbg).y * self.tsbg.scale.y;
 		}
 
@@ -221,8 +218,8 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 				var y = newPosition.y - this.sy;
 
-				if (y + scrollBarHeight > self.timelineHeight) {
-					y = self.timelineHeight - scrollBarHeight
+				if (y + self.scrollBarHeight > self.timelineHeight) {
+					y = self.timelineHeight - self.scrollBarHeight
 				}
 
 				if (y < 0) {
@@ -230,12 +227,20 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 				}
 
 				this.position.y = y;
+
+				var sperc = y / (self.timelineHeight - self.scrollBarHeight);
+
+				self.timelineScroll = -(sperc * (self.timelineElements.length * self.timelineElementHight));
+
+				self.drawLayout();
+
 			}
 
 		}
 
 		document.body.addEventListener('mouseup', function() {
 			self.tsbg.dragging = false;
+			self.tsbg.alpha = 1;
 		}.bind(this));
 
 	}
@@ -302,10 +307,11 @@ ProgramRenderer.prototype.drawTimeline = function() {
 		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.timelineHeight);
 		this.tlg.endFill();
 	}
-
 }
 
 ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
+
+	this.tlrsg.clear()
 
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
 
@@ -320,9 +326,9 @@ ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
 			continue;
 		}
 
-		this.tlg.beginFill(0x555555);
-		this.tlg.drawRect(this.options.leftSideWidth, y, width, 1);
-		this.tlg.endFill();
+		this.tlrsg.beginFill(0x555555);
+		this.tlrsg.drawRect(this.options.leftSideWidth, y, width, 1);
+		this.tlrsg.endFill();
 	}
 }
 
@@ -335,10 +341,12 @@ ProgramRenderer.prototype.drawGreyedOutTimelineArea = function() {
 	 */
 	var ypos = this.timelineElementHight * this.timelineElements.length + this.timelineScroll;
 
-	if (ypos > 0 && ypos < this.timelineHeight) {
-		this.tlg.beginFill(0x111111, 0.2);
-		this.tlg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHight * this.timelineElements.length) - this.timelineScroll);
-		this.tlg.endFill();
+	this.tlgbg.clear();
+
+	if (ypos >= 0 && ypos < this.timelineHeight) {
+		this.tlgbg.beginFill(0x111111, 0.2);
+		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHight * this.timelineElements.length) - this.timelineScroll);
+		this.tlgbg.endFill();
 	}
 }
 
