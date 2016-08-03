@@ -11,10 +11,10 @@ ProgramRenderer = function(elem, options, callback) {
 	this.time = 0;
 	this.bottomBarHeight = 300;
 	this.timelineHeight = this.height - this.bottomBarHeight;
-	this.timelineElementHight = 50;
+	this.timelineElementHeight = 50;
 	this.timelineScrollBarWidth = 15;
 
-	this.timelineElements = [1, 2, 1, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 2];
+	this.timelineElements = [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
 
 	debug(this.elem.height())
 
@@ -183,7 +183,7 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 		this.scrollBarHeight = 0;
 		var scrollBarPadding = 3;
 
-		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHight * this.timelineElements.length)
+		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHeight * this.timelineElements.length)
 
 		if (this.scrollBarHeight > 1) {
 			this.scrollBarHeight = 1;
@@ -228,9 +228,9 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 				this.position.y = y;
 
-				var sperc = y / (self.timelineHeight - self.scrollBarHeight);
+				var sperc = y / Math.max(1, (self.timelineHeight - self.scrollBarHeight));
 
-				self.timelineScroll = -(sperc * (self.timelineElements.length * self.timelineElementHight));
+				self.timelineScroll = -(sperc * (Math.max(0, self.timelineElements.length - (self.timelineHeight / self.timelineElementHeight)) * self.timelineElementHeight));
 
 				self.drawLayout();
 
@@ -320,7 +320,7 @@ ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
 	 */
 	for (var i = 0; i < this.timelineElements.length; i++) {
 
-		var y = (this.timelineElementHight * (i + 1)) - 1 + this.timelineScroll;
+		var y = (this.timelineElementHeight * (i + 1)) - 1 + this.timelineScroll;
 
 		if (y < 0 || y > this.timelineHeight) {
 			continue;
@@ -339,13 +339,13 @@ ProgramRenderer.prototype.drawGreyedOutTimelineArea = function() {
 	/**
 	 * Draw grey'ed out area
 	 */
-	var ypos = this.timelineElementHight * this.timelineElements.length + this.timelineScroll;
+	var ypos = this.timelineElementHeight * this.timelineElements.length + this.timelineScroll;
 
 	this.tlgbg.clear();
 
 	if (ypos >= 0 && ypos < this.timelineHeight) {
 		this.tlgbg.beginFill(0x111111, 0.2);
-		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHight * this.timelineElements.length) - this.timelineScroll);
+		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHeight * this.timelineElements.length) - this.timelineScroll);
 		this.tlgbg.endFill();
 	}
 }
