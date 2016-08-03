@@ -14,7 +14,7 @@ ProgramRenderer = function(elem, options, callback) {
 	this.timelineElementHight = 50;
 	this.timelineScrollBarWidth = 15;
 
-	this.timelineElements = [1, 2,1, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 2];
+	this.timelineElements = [1, 2, 1, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 21, 2];
 
 	debug(this.elem.height())
 
@@ -31,6 +31,8 @@ ProgramRenderer = function(elem, options, callback) {
 ProgramRenderer.prototype.init = function(callback) {
 	debug("Loading program renderer...");
 
+	this.buildFpsMeter();
+
 	/**
 	 * build
 	 */
@@ -42,6 +44,13 @@ ProgramRenderer.prototype.init = function(callback) {
 	this.draw();
 
 	debug("Renderer ready!");
+}
+
+ProgramRenderer.prototype.buildFpsMeter = function() {
+	this.meter = new FPSMeter($("#fps-meter").get(0), {
+		theme: 'transparent',
+		graph: 1
+	});
 }
 
 ProgramRenderer.prototype.buildStage = function(callback) {
@@ -60,6 +69,15 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 	this.elem.get(0).appendChild(this.renderer.view);
 
 	this.stage = new PIXI.Container();
+	this.stage.interactive = true;
+
+	this.stage.mouseup = this.stage.touchstop = function(event) {
+		if (this.tsbg) {
+			this.tsbg.dragging = false;
+		}
+
+		debug("Ello")
+	}.bind(this)
 
 	callback(null, null);
 }
@@ -106,7 +124,7 @@ ProgramRenderer.prototype.draw = function() {
 }
 
 ProgramRenderer.prototype.resize = function() {
-	this.drawLayout();
+	this.drawLayout(true);
 }
 
 ProgramRenderer.prototype.buildLayout = function() {
@@ -138,49 +156,89 @@ ProgramRenderer.prototype.buildLayout = function() {
 
 	this.tsbg = new PIXI.Graphics();
 	this.tsbg.interactive = true;
-	this.tsbg.hitArea = this.tsbg.getBounds();
+	this.tsbg.buttonMode = true;
 	this.stage.addChild(this.tsbg);
 
-	this.drawLayout();
+	this.drawLayout(true, true);
 }
 
-ProgramRenderer.prototype.drawLayout = function() {
-	this.drawLeftSidebar();
-	this.drawRightSidebar();
-	this.drawTimeline();
-	this.drawBottomBar();
-	this.drawTimeineScrollBar();
+ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
+	if (redraw) this.drawLeftSidebar();
+	if (redraw) this.drawRightSidebar();
+	if (redraw) this.drawTimeline();
+	if (redraw) this.drawBottomBar();
+	this.buildTimelineScrollBar(redraw, initial);
+	this.drawTimelineRowSeperators();
+	this.drawGreyedOutTimelineArea();
 }
 
-ProgramRenderer.prototype.drawTimeineScrollBar = function() {
+ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 	var xpos = this.width - this.timelineScrollBarWidth;
 
-	this.tsbbg.clear();
+	if (redraw || initial) {
+		this.tsbbg.clear();
 
-	this.tsbbg.beginFill(0x252525);
-	this.tsbbg.drawRect(xpos, 0, this.timelineScrollBarWidth, this.timelineHeight);
-	this.tsbbg.endFill();
+		this.tsbbg.beginFill(0x252525);
+		this.tsbbg.drawRect(xpos, 0, this.timelineScrollBarWidth, this.timelineHeight);
+		this.tsbbg.endFill();
+	}
 
 	var scrollBarHeight = 0;
 	var scrollBarPadding = 3;
 	var scrollBarPosition = 0;
 
 	scrollBarHeight = this.timelineHeight / (this.timelineElementHight * this.timelineElements.length)
-	debug(scrollBarHeight)
 
-	if(scrollBarHeight > 1){
+	if (scrollBarHeight > 1) {
 		scrollBarHeight = 1;
 	}
 
 	scrollBarHeight = scrollBarHeight * this.timelineHeight
 
-	debug(scrollBarHeight)
-
 	this.tsbg.clear();
 	this.tsbg.beginFill(0x555555);
 	this.tsbg.drawRect(xpos + scrollBarPadding, scrollBarPosition + scrollBarPadding, this.timelineScrollBarWidth - (scrollBarPadding * 2), scrollBarHeight - (scrollBarPadding * 2));
 	this.tsbg.endFill();
+	this.tsbg.hitArea = this.tsbg.getBounds();
+
+	if (initial) {
+
+		var self = this;
+
+		this.tsbg.mousedown = this.tsbg.touchstart = function(event) {
+			this.alpha = 0.9;
+			self.tsbg.dragging = true;
+			this.sx = event.data.getLocalPosition(self.tsbg).x * self.tsbg.scale.x;
+			this.sy = event.data.getLocalPosition(self.tsbg).y * self.tsbg.scale.y;
+		}
+
+		this.tsbg.mousemove = this.tsbg.touchmove = function(event) {
+
+			if (self.tsbg.dragging) {
+				// need to get parent coords..
+				var newPosition = event.data.getLocalPosition(this.parent);
+
+				var y = newPosition.y - this.sy;
+
+				if (y + scrollBarHeight > self.timelineHeight) {
+					y = self.timelineHeight - scrollBarHeight
+				}
+
+				if (y < 0) {
+					y = 0;
+				}
+
+				this.position.y = y;
+			}
+
+		}
+
+		document.body.addEventListener('mouseup', function() {
+			self.tsbg.dragging = false;
+		}.bind(this));
+
+	}
 }
 
 ProgramRenderer.prototype.drawBottomBar = function() {
@@ -245,13 +303,9 @@ ProgramRenderer.prototype.drawTimeline = function() {
 		this.tlg.endFill();
 	}
 
-	this.drawTimelineRowSeperators();
-
-	this.drawGreyedOutTimelineArea();
-	
 }
 
-ProgramRenderer.prototype.drawTimelineRowSeperators = function(){
+ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
 
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
 
@@ -272,10 +326,10 @@ ProgramRenderer.prototype.drawTimelineRowSeperators = function(){
 	}
 }
 
-ProgramRenderer.prototype.drawGreyedOutTimelineArea = function(){
+ProgramRenderer.prototype.drawGreyedOutTimelineArea = function() {
 
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-	
+
 	/**
 	 * Draw grey'ed out area
 	 */
@@ -303,6 +357,8 @@ ProgramRenderer.prototype.setTime = function(time) {
 }
 
 ProgramRenderer.prototype.tick = function() {
+	if (this.meter) this.meter.tick();
+
 	this.drawCursor();
 }
 
