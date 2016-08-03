@@ -29,8 +29,8 @@ Program.prototype.buildRenderer = function() {
 	$("#program-main-editor").css("min-height", (window.innerHeight - 63) + "px").css("max-height", (window.innerHeight - 63) + "px");
 
 	this.renderer = new ProgramRenderer($("#program-main-editor"), {
-		bpm: 120,
-		bars: 8,
+		bpm: 128,
+		bars: 4,
 	}, function(err) {
 		if (err) {
 			debug(err);
@@ -51,13 +51,23 @@ Program.prototype.bindKeyPresses = function() {
 			case 32:
 				this.togglePause();
 				break;
+			case 36:
+				this.gotoStart();
+				break;
+			default:
+				debug(event.keyCode)
 		}
 	}.bind(this));
 }
 
 Program.prototype.togglePause = function() {
+	debug("Toggling pause")
 	this.renderer.options.running = !this.renderer.options.running;
-	// this.renderer.timeOffset = new Date();
+}
+
+Program.prototype.gotoStart = function(){
+	debug("Going to start of timeline")
+	this.timing.timeOffset = new Date();
 }
 
 Program.prototype.run = function(){
