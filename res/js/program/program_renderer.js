@@ -137,6 +137,7 @@ ProgramRenderer.prototype.buildLayout = function() {
 	this.stage.addChild(this.tlrsg);
 
 	this.tlgbg = new PIXI.Graphics();
+	this.tlgbg.interactive = true;
 	this.stage.addChild(this.tlgbg);
 
 	this.rsbg = new PIXI.Graphics();
@@ -161,11 +162,11 @@ ProgramRenderer.prototype.buildLayout = function() {
 ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	if (redraw) this.drawLeftSidebar();
 	if (redraw) this.drawRightSidebar();
-	if (redraw) this.drawTimeline();
+	if (redraw) this.drawTimeline(initial);
 	if (redraw) this.drawBottomBar();
 	this.buildTimelineScrollBar(redraw, initial);
 	this.drawTimelineRowSeperators();
-	this.drawGreyedOutTimelineArea();
+	this.drawGreyedOutTimelineArea(initial);
 }
 
 ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
@@ -287,7 +288,7 @@ ProgramRenderer.prototype.drawRightSidebar = function() {
 	this.rsbg.endFill();
 }
 
-ProgramRenderer.prototype.drawTimeline = function() {
+ProgramRenderer.prototype.drawTimeline = function(initial) {
 	var darkBar = false;
 
 	this.tlg.clear();
@@ -307,6 +308,40 @@ ProgramRenderer.prototype.drawTimeline = function() {
 		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.timelineHeight);
 		this.tlg.endFill();
 	}
+
+	this.tlg.hitArea = this.tlg.getBounds();
+
+	if (initial) {
+		this.bindTimelineWheelScroll();
+	}
+}
+
+ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
+	this.tlg.mouseover = function() {
+		this.mouseIn = true;
+	}
+
+	this.tlg.mouseout = function() {
+		this.mouseIn = false;
+	}
+
+	document.body.addEventListener('mousewheel', function(event) {
+
+		if (this.tlg.mouseIn || this.tlgbg.mouseIn) {
+			this.timelineScroll += event.wheelDeltaY;
+
+			if (-this.timelineScroll > this.timelineElementHeight * this.timelineElements.length - this.timelineHeight) {
+				this.timelineScroll = -((this.timelineElementHeight * this.timelineElements.length) - this.timelineHeight);
+			}
+
+			if (-this.timelineScroll < 0) {
+				this.timelineScroll = 0;
+			}
+
+			this.drawLayout(false, false);
+		}
+
+	}.bind(this));
 }
 
 ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
@@ -332,7 +367,7 @@ ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
 	}
 }
 
-ProgramRenderer.prototype.drawGreyedOutTimelineArea = function() {
+ProgramRenderer.prototype.drawGreyedOutTimelineArea = function(initial) {
 
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
 
@@ -347,6 +382,20 @@ ProgramRenderer.prototype.drawGreyedOutTimelineArea = function() {
 		this.tlgbg.beginFill(0x111111, 0.2);
 		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHeight * this.timelineElements.length) - this.timelineScroll);
 		this.tlgbg.endFill();
+	}
+
+	this.tlgbg.hitArea = this.tlgbg.getBounds();
+
+	if (initial) {
+
+		this.tlgbg.mouseover = function() {
+			this.mouseIn = true;
+		}
+
+		this.tlgbg.mouseout = function() {
+			this.mouseIn = false;
+		}
+
 	}
 }
 
