@@ -338,6 +338,10 @@ ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
 				this.timelineScroll = 0;
 			}
 
+			var maxHeight = this.timelineElements.length * this.timelineElementHeight - this.timelineHeight;
+
+			this.tsbg.position.y = Math.abs(-this.timelineScroll / maxHeight) * (this.timelineHeight - this.scrollBarHeight)
+
 			this.drawLayout(false, false);
 		}
 
