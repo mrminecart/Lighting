@@ -35,13 +35,18 @@ DmxManager.prototype.startPythonWriter = function() {
 
 	this.prc = spawn('python', [path.dirname(__dirname) + '/python/ola_writer.py']);
 
-	//noinspection JSUnresolvedFunction
 	this.prc.stdout.setEncoding('utf8');
 
 	this.prc.stdout.on('data', function(data) {
 		var str = data.toString()
 		var lines = str.split(/(\r?\n)/g);
-		console.log(lines.join(""));
+		debug(lines.join(""));
+	});
+
+	this.prc.stderr.on('data', function(data) {
+		var str = data.toString()
+		var lines = str.split(/(\r?\n)/g);
+		debug(lines.join(""));
 	});
 
 	this.prc.on('close', function(code) {
@@ -71,28 +76,60 @@ DmxManager.prototype.initDMX = function() {
 		if (!data[i]) data[i] = 1;
 	}
 
-	this.landscape = data;
+	this.landscape = {
+		1: data
+	};
 
 	this.sendData();
 }
 
 DmxManager.prototype.sendData = function() {
 
+	var universes = Object.keys(this.landscape);
 	var diff = {};
 
-	for (var i = 0; i < 512; i++) {
-		if (this.landscape[i] !== this.lastlandscape[i]) {
-			this.lastlandscape[i] = diff[i] = this.landscape[i];
+	for (var u = 0; u < universes.length; u++) {
+
+		if (Object.keys(this.lastlandscape).indexOf(universes[u]) === -1) {
+			this.lastlandscape[universes[u]] = {};
+		}
+
+		for (var i = 0; i < 512; i++) {
+
+			if (this.landscape[universes[u]][i] !== this.lastlandscape[universes[u]][i]) {
+
+				if (!diff[universes[u]]) {
+					diff[universes[u]] = {};
+				}
+
+				this.lastlandscape[universes[u]][i] = diff[universes[u]][i] = this.landscape[universes[u]][i];
+			}
 		}
 	}
 
-	this.publisher.publish("dmx_input", JSON.stringify(diff));
+	if(Object.keys(diff).length > 0){
+		// debug(diff)
+		this.publisher.publish("dmx_input", JSON.stringify(diff));	
+	}
 }
 
 DmxManager.prototype.set = function(packet) {
-	for (var i = 0; i < 512; i++) {
-		if (typeof packet[i] == "number") {
-			this.landscape[i] = Number.parseInt(packet[i])
+	var universes = Object.keys(packet);
+
+	for (var u = 0; u < universes.length; u++) {
+		var channels = Object.keys(packet[universes]);
+
+		for (var c = 0; c < channels.length; c++) {
+
+			if (typeof packet[universes[u]][channels[c]] == "number") {
+
+				this.landscape[universes[u]][channels[c]] = Number.parseInt(packet[universes[u]][channels[c]])
+
+			} else {
+				debug("GOT NON NUMBER FOR DMX VALUE!?");
+				debug(packet[universes[u]][channels[c]])
+			}
+
 		}
 	}
 }

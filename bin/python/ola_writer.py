@@ -5,7 +5,8 @@ from ola.ClientWrapper import ClientWrapper
 
 wrapper = None
 TICK_INTERVAL = int(1000/30)  # in ms
-data = array.array('B')
+universe_count = 1024
+data = {}
 r = redis.StrictRedis(host='localhost', port=6379, db=0)
 p = r.pubsub()
 
@@ -15,12 +16,6 @@ def init():
 
   #Listen to redis
   p.subscribe('dmx_input')
-
-  #Init dmx data
-  data = array.array('B')
-
-  for i in xrange(0, 512):
-    data.append(0)
 
 def DmxSent(state):
   if not state.Succeeded():
@@ -34,21 +29,28 @@ def SendDMXFrame():
   wrapper.AddEvent(TICK_INTERVAL, SendDMXFrame)
 
   # send
-  wrapper.Client().SendDmx(1, data, DmxSent)
+  for universe, output in data.iteritems():
+    wrapper.Client().SendDmx(universe, output, DmxSent)
 
   # Listen to redis
 
   message = p.get_message()
 
-  if(message):
-    try:
-      dmx_in = json.loads(message['data'])
+  if(message and message['type'] == 'message'):
 
-      for key, value in dmx_in.iteritems():
-        data[int(key)] = value
+    dmx_in = json.loads(message['data'])
 
-    except:
-      pass
+    for universe, output in dmx_in.iteritems():
+      universe = int(universe)
+
+      if not universe in data:
+        data[universe] = array.array('B')
+        for i in xrange(0, 512):
+          data[universe].append(0)
+
+      for channel, value in output.iteritems():
+        data[universe][int(channel)] = int(value)
+
 
 # lets go
 init()

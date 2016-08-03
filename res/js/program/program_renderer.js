@@ -7,7 +7,7 @@ ProgramRenderer = function(elem, options, callback) {
 	this.options = options;
 	this.height = this.elem.height();
 
-	this.timing = {};
+	this.time = 0;
 	this.bottomBarHeight = 300;
 	this.timelineHeight = this.height - this.bottomBarHeight;
 
@@ -107,8 +107,25 @@ ProgramRenderer.prototype.buildLayout = function() {
 	/**
 	 * Get Graphics
 	 */
-	this.lg = new PIXI.Graphics();
-	this.stage.addChild(this.lg);
+	this.bbg = new PIXI.Graphics();
+	this.bbg.interactive = true;
+	this.bbg.hitArea = this.bbg.getBounds();
+	this.stage.addChild(this.bbg);
+	
+	this.tlg = new PIXI.Graphics();
+	this.tlg.interactive = true;
+	this.tlg.hitArea = this.tlg.getBounds();
+	this.stage.addChild(this.tlg);
+
+	this.rsbg = new PIXI.Graphics();
+	this.rsbg.interactive = true;
+	this.rsbg.hitArea = this.rsbg.getBounds();
+	this.stage.addChild(this.rsbg);
+
+	this.lsbg = new PIXI.Graphics();
+	this.lsbg.interactive = true;
+	this.lsbg.hitArea = this.lsbg.getBounds();
+	this.stage.addChild(this.lsbg);
 
 	this.drawLayout();
 }
@@ -121,59 +138,69 @@ ProgramRenderer.prototype.drawLayout = function() {
 }
 
 ProgramRenderer.prototype.drawBottomBar = function() {
-	this.lg.beginFill(0x222222);
-	this.lg.drawRect(this.options.leftSideWidth, this.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
-	this.lg.endFill();
 
-	this.lg.beginFill(0x111111);
-	this.lg.drawRect(this.options.leftSideWidth, this.timelineHeight, 1, this.bottomBarHeight);
-	this.lg.endFill();
+	this.bbg.clear();
+
+	this.bbg.beginFill(0x222222);
+	this.bbg.drawRect(this.options.leftSideWidth, this.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
+	this.bbg.endFill();
+
+	this.bbg.beginFill(0x111111);
+	this.bbg.drawRect(this.options.leftSideWidth, this.timelineHeight, 1, this.bottomBarHeight);
+	this.bbg.endFill();
 }
 
 ProgramRenderer.prototype.drawLeftSidebar = function() {
-	this.lg.beginFill(0x777777);
-	this.lg.drawRect(0, 0, this.options.leftSideWidth, this.height);
-	this.lg.endFill();
 
-	this.lg.beginFill(0x111111);
-	this.lg.drawRect(this.options.leftSideWidth, 0, 1, this.height);
-	this.lg.endFill();
+	this.lsbg.clear()
+
+	this.lsbg.beginFill(0x777777);
+	this.lsbg.drawRect(0, 0, this.options.leftSideWidth, this.height);
+	this.lsbg.endFill();
+
+	this.lsbg.beginFill(0x111111);
+	this.lsbg.drawRect(this.options.leftSideWidth, 0, 1, this.height);
+	this.lsbg.endFill();
 }
 
 ProgramRenderer.prototype.drawRightSidebar = function() {
 
-	this.lg.beginFill(0x333333);
-	this.lg.drawRect(this.width - this.options.rightSideWidth, 0, this.options.rightSideWidth, this.timelineHeight);
-	this.lg.endFill();
+	this.rsbg.clear()
 
-	this.lg.beginFill(0x111111);
-	this.lg.drawRect(this.width - this.options.rightSideWidth, 0, 1, this.timelineHeight);
-	this.lg.endFill();
+	this.rsbg.beginFill(0x333333);
+	this.rsbg.drawRect(this.width - this.options.rightSideWidth, 0, this.options.rightSideWidth, this.timelineHeight);
+	this.rsbg.endFill();
+
+	this.rsbg.beginFill(0x111111);
+	this.rsbg.drawRect(this.width - this.options.rightSideWidth, 0, 1, this.timelineHeight);
+	this.rsbg.endFill();
 }
 
 ProgramRenderer.prototype.drawTimeline = function() {
 	var darkBar = false;
 
+	this.tlg.clear();
+
 	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth;
 
 	for (var i = 0; i < this.options.bars; i++) {
-		this.lg.beginFill(darkBar ? 0x505050 : 0x4a4a4a);
-		this.lg.drawRect(this.options.leftSideWidth + (width / this.options.bars) * i, 0, width / this.options.bars, this.timelineHeight);
-		this.lg.endFill();
+		this.tlg.beginFill(darkBar ? 0x505050 : 0x4a4a4a);
+		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) * i, 0, width / this.options.bars, this.timelineHeight);
+		this.tlg.endFill();
 
 		darkBar = !darkBar;
 	}
 
 	for (var i = 0; i < this.options.bars * 4; i++) {
-		this.lg.beginFill(0x444444);
-		this.lg.drawRect(this.options.leftSideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.timelineHeight);
-		this.lg.endFill();
+		this.tlg.beginFill(0x444444);
+		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.timelineHeight);
+		this.tlg.endFill();
 	}
 
 	for (var i = 0; i < (this.timelineHeight / this.options.lineHeight) - 1; i++) {
-		this.lg.beginFill(0x555555);
-		this.lg.drawRect(this.options.leftSideWidth, (this.options.lineHeight * (i + 1)) - 1, this.width - this.options.leftSideWidth, 1);
-		this.lg.endFill();
+		this.tlg.beginFill(0x555555);
+		this.tlg.drawRect(this.options.leftSideWidth, (this.options.lineHeight * (i + 1)) - 1, width, 1);
+		this.tlg.endFill();
 	}
 }
 
@@ -185,22 +212,14 @@ ProgramRenderer.prototype.buildCursor = function() {
 		pos: 0
 	}
 
-	this.timeOffset = new Date().getTime();
+}
+ 
+ProgramRenderer.prototype.setTime = function(time){
+	this.time = time;
 }
 
 ProgramRenderer.prototype.tick = function() {
-	var now = new Date().getTime();
-	this.timing.deltaTime = now - this.timing.lastTick;
-	this.timing.lastTick = now;
-
-	if (this.options.running) {
-		this.time = new Date().getTime() - this.timeOffset;
-	}else{
-		this.timeOffset += this.timing.deltaTime;
-	}
-
 	this.drawCursor();
-
 }
 
 ProgramRenderer.prototype.drawCursor = function() {
@@ -215,11 +234,11 @@ ProgramRenderer.prototype.drawCursor = function() {
 	this.cg.drawRect(this.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
 	this.cg.endFill();
 
-	app.dmx.set({
-		0: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 128) + 128,
-		2: (Math.sin(this.cursor.pos / 50 * Math.PI * 2) * 64) + 128,
-		5: 40,
-		6: 255,
-		12: (this.cursor.pos >= 50 ? 25 : 50)
-	})
+	app.dmx.set({1: {
+		0: (Math.sin(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
+		1: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
+		2: 32,//this.cursor.pos * 2.54,
+		3: 100,
+		4: 255
+	}})
 }

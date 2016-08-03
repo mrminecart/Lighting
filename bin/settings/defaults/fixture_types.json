@@ -29,6 +29,36 @@
 			}
 		]
 	},
+	"eurolite_ts-150": {
+		"manufacturer": "eurolite",
+		"name": "TS-150",
+		"channels": [
+			{
+				"name": "Pan",
+				"type": "move_pan"
+			},
+			{
+				"name": "Tilt",
+				"type": "move_tilt"
+			},
+			{
+				"name": "Colour Wheel",
+				"type": "colour_wheel"
+			},
+			{
+				"name": "Gobo Selector",
+				"type": "gobo_selector"
+			},
+			{
+				"name": "Shutter",
+				"type": "shutter"
+			},
+			{
+				"name": "Gobo Rotation",
+				"type": "gobo_rotation"
+			}
+		]
+	},
 	"mini_led-p046": {
 		"manufacturer": "Mini LED",
 		"name": "P046",
