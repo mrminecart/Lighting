@@ -6,7 +6,7 @@ var html = "";
 
 var channel_count = 120;
 
-for(var i = 0; i < channel_count; i++){
+for (var i = 0; i < channel_count; i++) {
 	html += '<input class="channel-slider" channel="' + i + '" type="text" data-slider-min="0" data-slider-max="255" data-slider-step="1" data-slider-value="0" data-slider-orientation="vertical"/>'
 }
 
@@ -14,16 +14,18 @@ $(".channel-bank").html(html)
 
 var sliders = [];
 
-for(var i = 0 ; i < channel_count; i++){
+for (var i = 0; i < channel_count; i++) {
 	sliders.push(new Slider('.channel-slider[channel="' + i + '"]', {
-		reversed : true,
+		reversed: true,
 		tooltip: "hide"
-	}).on("slide", function(id){
-		return function(value){
+	}).on("slide", function(id) {
+		return function(value) {
 
-			var packet = {};
+			var packet = {
+				1: {}
+			};
 
-			packet[id] = value
+			packet[1][id] = value
 
 			app.dmx.set(packet)
 
