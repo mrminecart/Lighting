@@ -14,7 +14,7 @@ ProgramRenderer = function(elem, options, callback) {
 	this.timelineElementHeight = 50;
 	this.timelineScrollBarWidth = 15;
 
-	this.timelineElements = [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
+	this.timelineElements = [1, 2, 2, 2, 2, 2, 2, 2, 2, 2, 2];
 
 	debug(this.elem.height())
 
@@ -40,6 +40,7 @@ ProgramRenderer.prototype.init = function(callback) {
 	this.listenForResize();
 	this.buildLayout();
 	this.buildCursor();
+	this.buildRightClickMenu();
 
 	this.draw();
 
@@ -124,10 +125,11 @@ ProgramRenderer.prototype.buildLayout = function() {
 	/**
 	 * Get Graphics
 	 */
-	this.bbg = new PIXI.Graphics();
-	this.bbg.interactive = true;
-	this.stage.addChild(this.bbg);
 
+	/**
+	 * Timeline graphics
+	 * @type {PIXI}
+	 */
 	this.tlg = new PIXI.Graphics();
 	this.tlg.interactive = true;
 	this.stage.addChild(this.tlg);
@@ -140,14 +142,6 @@ ProgramRenderer.prototype.buildLayout = function() {
 	this.tlgbg.interactive = true;
 	this.stage.addChild(this.tlgbg);
 
-	this.rsbg = new PIXI.Graphics();
-	this.rsbg.interactive = true;
-	this.stage.addChild(this.rsbg);
-
-	this.lsbg = new PIXI.Graphics();
-	this.lsbg.interactive = true;
-	this.stage.addChild(this.lsbg);
-
 	this.tsbbg = new PIXI.Graphics();
 	this.stage.addChild(this.tsbbg);
 
@@ -156,17 +150,144 @@ ProgramRenderer.prototype.buildLayout = function() {
 	this.tsbg.buttonMode = true;
 	this.stage.addChild(this.tsbg);
 
+	/**
+	 * Right sidebar graphics
+	 * @type {PIXI}
+	 */
+	this.rsbg = new PIXI.Graphics();
+	this.rsbg.interactive = true;
+	this.stage.addChild(this.rsbg);
+
+	/**
+	 * Left sidebar graphics
+	 * @type {PIXI}
+	 */
+	this.lsbg = new PIXI.Graphics();
+	this.stage.addChild(this.lsbg);
+
+	/**
+	 * Bottom bar graphics
+	 * @type {PIXI}
+	 */
+	this.bbg = new PIXI.Graphics();
+	this.bbg.interactive = true;
+	this.stage.addChild(this.bbg);
+
 	this.drawLayout(true, true);
+}
+
+ProgramRenderer.prototype.buildRightClickMenu = function() {
+
+	var width = 115;
+
+	var outerContainer = new PIXI.Container();
+
+	this.stage.addChild(outerContainer);
+
+	outerContainer.visible = false;
+
+	var innerContainer = new PIXI.Container();
+	outerContainer.addChild(innerContainer);
+
+	/**
+	 * itemContainer1
+	 * @type {PIXI}
+	 */
+	var itemContainer1 = new PIXI.Container();
+
+	itemContainer1.interactive = true;
+	itemContainer1.buttonMode = true;
+
+	itemContainer1.position.y = 0;
+
+	var rcg1 = new PIXI.Graphics();
+	rcg1.interactive = true;
+	itemContainer1.addChild(rcg1);
+
+	rcg1.beginFill(0xaaaaaa);
+	rcg1.drawRect(0, 0, width, 25);
+	rcg1.endFill();
+
+	var text1 = new PIXI.Text('Add Pattern lane',{font : '14px Lato', fill : 0x111111, align : 'left'});
+	text1.position.x = 5;
+	text1.position.y = 5;
+
+	itemContainer1.addChild(text1);
+
+	itemContainer1.hitArea = itemContainer1.getBounds();
+
+	itemContainer1.mousedown = function(event){
+		this.addNewTimelineLane();
+	}.bind(this)
+
+	innerContainer.addChild(itemContainer1);
+
+	/**
+	 * itemContainer2
+	 * @type {PIXI}
+	 */
+	var itemContainer2 = new PIXI.Container();
+
+	itemContainer2.interactive = true;
+	itemContainer2.buttonMode = true;
+
+	itemContainer2.position.y = 25;
+
+	var rcg2 = new PIXI.Graphics();
+	rcg2.interactive = true;
+	itemContainer2.addChild(rcg2);
+
+	rcg2.beginFill(0xaaaaaa);
+	rcg2.drawRect(0, 0, width, 25);
+	rcg2.endFill();
+
+	var text2 = new PIXI.Text('Other Thing',{font : '14px Lato', fill : 0x111111, align : 'left'});
+	text2.position.x = 5;
+	text2.position.y = 5;
+
+	itemContainer2.addChild(text2);
+
+	itemContainer2.hitArea = itemContainer2.getBounds();
+
+	itemContainer2.mousedown = function(event){
+		alert("Ayyy")
+	}
+
+	innerContainer.addChild(itemContainer2);
+
+
+	document.body.addEventListener('mousedown', function(event) {
+		if (event.button == 2 && (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn)) {
+			outerContainer.position.x = this.renderer.plugins.interaction.mouse.global.x;
+			outerContainer.position.y = this.renderer.plugins.interaction.mouse.global.y;
+			outerContainer.visible = true;
+
+			return;
+		}
+
+		outerContainer.visible = false;
+	}.bind(this));
+
+}
+
+ProgramRenderer.prototype.addNewTimelineLane = function(){
+	this.timelineElements.push({
+
+	})
+
+	this.drawLayout(true);
 }
 
 ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	if (redraw) this.drawLeftSidebar();
-	if (redraw) this.drawRightSidebar();
+	this.drawRightSidebar(redraw, initial);
+
 	if (redraw) this.drawTimeline(initial);
-	if (redraw) this.drawBottomBar();
 	this.buildTimelineScrollBar(redraw, initial);
 	this.drawTimelineRowSeperators();
 	this.drawGreyedOutTimelineArea(initial);
+
+	this.drawBottomBar();
 }
 
 ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
@@ -184,7 +305,7 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 		this.scrollBarHeight = 0;
 		var scrollBarPadding = 3;
 
-		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHeight * this.timelineElements.length)
+		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHeight * (this.timelineElements.length + 1))
 
 		if (this.scrollBarHeight > 1) {
 			this.scrollBarHeight = 1;
@@ -231,7 +352,7 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 				var sperc = y / Math.max(1, (self.timelineHeight - self.scrollBarHeight));
 
-				self.timelineScroll = -(sperc * (Math.max(0, self.timelineElements.length - (self.timelineHeight / self.timelineElementHeight)) * self.timelineElementHeight));
+				self.timelineScroll = -(sperc * (Math.max(0, (self.timelineElements.length + 1) - (self.timelineHeight / self.timelineElementHeight)) * self.timelineElementHeight));
 
 				self.drawLayout();
 
@@ -249,7 +370,7 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 ProgramRenderer.prototype.drawBottomBar = function() {
 
-	this.tsbg.clear();
+	this.bbg.clear();
 
 	this.bbg.beginFill(0x222222);
 	this.bbg.drawRect(this.options.leftSideWidth, this.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
@@ -273,11 +394,15 @@ ProgramRenderer.prototype.drawLeftSidebar = function() {
 	this.lsbg.endFill();
 }
 
-ProgramRenderer.prototype.drawRightSidebar = function() {
+ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 
 	var xpos = this.width - this.options.rightSideWidth - this.timelineScrollBarWidth;
 
 	this.rsbg.clear()
+
+	/**
+	 * background
+	 */
 
 	this.rsbg.beginFill(0x333333);
 	this.rsbg.drawRect(xpos, 0, this.options.rightSideWidth, this.timelineHeight);
@@ -286,6 +411,27 @@ ProgramRenderer.prototype.drawRightSidebar = function() {
 	this.rsbg.beginFill(0x111111);
 	this.rsbg.drawRect(xpos, 0, 1, this.timelineHeight);
 	this.rsbg.endFill();
+
+	/**
+	 * Count as in timeline
+	 */
+
+	this.rsbg.hitArea = this.rsbg.getBounds();
+
+	if (initial) {
+
+		this.rsbg.mouseover = function() {
+			setTimeout(function() {
+				this.mouseIn = true;
+			}.bind(this), 0);
+
+		}
+
+		this.rsbg.mouseout = function() {
+			this.mouseIn = false;
+		}
+
+	}
 }
 
 ProgramRenderer.prototype.drawTimeline = function(initial) {
@@ -318,7 +464,9 @@ ProgramRenderer.prototype.drawTimeline = function(initial) {
 
 ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
 	this.tlg.mouseover = function() {
-		this.mouseIn = true;
+		setTimeout(function() {
+			this.mouseIn = true;
+		}.bind(this), 0);
 	}
 
 	this.tlg.mouseout = function() {
@@ -327,18 +475,18 @@ ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
 
 	document.body.addEventListener('mousewheel', function(event) {
 
-		if (this.tlg.mouseIn || this.tlgbg.mouseIn) {
+		if (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn) {
 			this.timelineScroll += event.wheelDeltaY;
 
-			if (-this.timelineScroll > this.timelineElementHeight * this.timelineElements.length - this.timelineHeight) {
-				this.timelineScroll = -((this.timelineElementHeight * this.timelineElements.length) - this.timelineHeight);
+			if (-this.timelineScroll > (this.timelineElementHeight * (this.timelineElements.length + 1)) - this.timelineHeight) {
+				this.timelineScroll = -((this.timelineElementHeight * (this.timelineElements.length + 1)) - this.timelineHeight);
 			}
 
 			if (-this.timelineScroll < 0) {
 				this.timelineScroll = 0;
 			}
 
-			var maxHeight = this.timelineElements.length * this.timelineElementHeight - this.timelineHeight;
+			var maxHeight = (this.timelineElements.length + 1) * this.timelineElementHeight - this.timelineHeight;
 
 			this.tsbg.position.y = Math.abs(-this.timelineScroll / maxHeight) * (this.timelineHeight - this.scrollBarHeight)
 
@@ -393,7 +541,9 @@ ProgramRenderer.prototype.drawGreyedOutTimelineArea = function(initial) {
 	if (initial) {
 
 		this.tlgbg.mouseover = function() {
-			this.mouseIn = true;
+			setTimeout(function() {
+				this.mouseIn = true;
+			}.bind(this), 0);
 		}
 
 		this.tlgbg.mouseout = function() {
@@ -410,7 +560,6 @@ ProgramRenderer.prototype.buildCursor = function() {
 	this.cursor = {
 		pos: 0
 	}
-
 }
 
 ProgramRenderer.prototype.setTime = function(time) {
