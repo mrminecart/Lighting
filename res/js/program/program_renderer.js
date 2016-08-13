@@ -11,16 +11,24 @@ ProgramRenderer = function(elem, options, callback) {
 	this.time = 0;
 	this.bottomBarHeight = 300;
 	this.timelineHeight = this.height - this.bottomBarHeight;
-	this.timelineElementHeight = 50;
+	this.timelineLaneHeight = 50;
 	this.timelineScrollBarWidth = 15;
+	this.timelineBarGrid = 8;
 
-	this.timelineElements = [{
+	this.timelineLanes = [{
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
 		patterns: [],
 		active: true
 	}, {
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
-		patterns: [],
+		patterns: [{
+			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
+			location: this.timelineBarGrid / 2,
+			colour: 0xff00ff,
+			pattern: {
+				length: 1 * this.timelineBarGrid
+			}
+		}],
 		active: false
 	}, {
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
@@ -124,7 +132,7 @@ ProgramRenderer.prototype.buildOptions = function(options) {
 		bpm: 120,
 		bars: 4,
 		leftSideWidth: 300,
-		rightSideWidth: 200
+		rightSideWidth: 100
 	}
 
 	for (var attrname in options) {
@@ -270,7 +278,7 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 	rcg2.drawRect(0, 0, width, 25);
 	rcg2.endFill();
 
-	var text2 = new PIXI.Text('Other Thing', {
+	var text2 = new PIXI.Text('Add Pattern', {
 		font: '14px Lato',
 		fill: 0x111111,
 		align: 'left'
@@ -283,13 +291,16 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 	itemContainer2.hitArea = itemContainer2.getBounds();
 
 	itemContainer2.mousedown = function(event) {
-		alert("Ayyy")
+		this.addNewPattern();
 	}
 
 	innerContainer.addChild(itemContainer2);
 
 
 	document.body.addEventListener('mousedown', function(event) {
+
+		itemContainer2.visible = this.tlg.mouseIn
+
 		if (event.button == 2 && (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn)) {
 			outerContainer.position.x = this.renderer.plugins.interaction.mouse.global.x;
 			outerContainer.position.y = this.renderer.plugins.interaction.mouse.global.y;
@@ -300,16 +311,15 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 
 		outerContainer.visible = false;
 	}.bind(this));
-
 }
 
 ProgramRenderer.prototype.addNewTimelineLane = function() {
 
-	for (var i = 0; i < this.timelineElements.length; i++) {
-		this.timelineElements[i].active = false;
+	for (var i = 0; i < this.timelineLanes.length; i++) {
+		this.timelineLanes[i].active = false;
 	}
 
-	this.timelineElements.push({
+	this.timelineLanes.push({
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
 		patterns: [],
 		active: true
@@ -329,6 +339,8 @@ ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	this.drawTimelineRowSeperators();
 	this.drawGreyedOutTimelineArea(initial);
 
+	this.drawPatterns(redraw, initial);
+
 	this.drawBottomBar();
 }
 
@@ -347,7 +359,7 @@ ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 		this.scrollBarHeight = 0;
 		var scrollBarPadding = 3;
 
-		this.scrollBarHeight = this.timelineHeight / (this.timelineElementHeight * (this.timelineElements.length + 1))
+		this.scrollBarHeight = this.timelineHeight / (this.timelineLaneHeight * (this.timelineLanes.length + 1))
 
 		if (this.scrollBarHeight > 1) {
 			this.scrollBarHeight = 1;
@@ -528,15 +540,15 @@ ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
 }
 
 ProgramRenderer.prototype.verifyAndSetTimelineScroll = function() {
-	if (-this.timelineScroll > (this.timelineElementHeight * (this.timelineElements.length + 1)) - this.timelineHeight) {
-		this.timelineScroll = -((this.timelineElementHeight * (this.timelineElements.length + 1)) - this.timelineHeight);
+	if (-this.timelineScroll > (this.timelineLaneHeight * (this.timelineLanes.length + 1)) - this.timelineHeight) {
+		this.timelineScroll = -((this.timelineLaneHeight * (this.timelineLanes.length + 1)) - this.timelineHeight);
 	}
 
 	if (-this.timelineScroll < 0) {
 		this.timelineScroll = 0;
 	}
 
-	var maxHeight = (this.timelineElements.length + 1) * this.timelineElementHeight - this.timelineHeight;
+	var maxHeight = (this.timelineLanes.length + 1) * this.timelineLaneHeight - this.timelineHeight;
 
 	this.tsbg.position.y = Math.abs(-this.timelineScroll / maxHeight) * (this.timelineHeight - this.scrollBarHeight)
 }
@@ -550,9 +562,9 @@ ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
 	/**
 	 * Draw sepeation lines
 	 */
-	for (var i = 0; i < this.timelineElements.length; i++) {
+	for (var i = 0; i < this.timelineLanes.length; i++) {
 
-		var y = (this.timelineElementHeight * (i + 1)) - 1 + this.timelineScroll;
+		var y = (this.timelineLaneHeight * (i + 1)) - 1 + this.timelineScroll;
 
 		if (y < 0 || y > this.timelineHeight) {
 			continue;
@@ -571,13 +583,13 @@ ProgramRenderer.prototype.drawGreyedOutTimelineArea = function(initial) {
 	/**
 	 * Draw grey'ed out area
 	 */
-	var ypos = this.timelineElementHeight * this.timelineElements.length + this.timelineScroll;
+	var ypos = this.timelineLaneHeight * this.timelineLanes.length + this.timelineScroll;
 
 	this.tlgbg.clear();
 
 	if (ypos >= 0 && ypos < this.timelineHeight) {
 		this.tlgbg.beginFill(0x111111, 0.2);
-		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineElementHeight * this.timelineElements.length) - this.timelineScroll);
+		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineLaneHeight * this.timelineLanes.length) - this.timelineScroll);
 		this.tlgbg.endFill();
 	}
 
@@ -636,4 +648,30 @@ ProgramRenderer.prototype.drawCursor = function() {
 	// 	3: 100,
 	// 	4: 255
 	// }})
+}
+
+ProgramRenderer.prototype.drawPatterns = function(redraw, initial){
+	if(initial){
+		this.tlpg = new PIXI.Graphics();
+		this.stage.addChild(this.tlpg);
+	}
+
+	this.tlpg.clear();
+
+	var timelineWidth = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
+	var barGridStepWidth = timelineWidth / this.options.bars / this.timelineBarGrid;
+
+	debug(barGridStepWidth)
+
+	for(var i = 0 ; i < this.timelineLanes.length; i++){
+		for (var k = 0; k < this.timelineLanes[i].patterns.length; k++) {
+			
+			debug(this.timelineLanes[i].patterns[k]);
+
+			this.tlpg.beginFill(this.timelineLanes[i].patterns[k].colour);
+			this.tlpg.drawRect(this.options.leftSideWidth + (barGridStepWidth * this.timelineLanes[i].patterns[k].location), i * this.timelineLaneHeight, this.timelineLanes[i].patterns[k].pattern.length * barGridStepWidth, this.timelineLaneHeight);
+			this.tlpg.endFill();
+
+		}
+	}
 }
