@@ -16,9 +16,11 @@
   },
   "dependencies": {
     "async": "^1.5.2",
+    "color": "^0.11.3",
     "debug": "^2.2.0",
     "dmx": "git+https://github.com/wiedi/node-dmx.git",
     "hue": "0.0.0",
+    "pleasejs": "^0.4.2",
     "redis": "^2.6.1",
     "uuid": "^2.0.2"
   }

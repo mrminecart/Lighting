@@ -1,6 +1,8 @@
 const debug = require('debug')("li:client:program_renderer");
 const remote = require('electron').remote;
 const app = remote.getGlobal('app_main');
+const pleasejs = require("pleasejs");
+const color = require("color");
 
 ProgramRenderer = function(elem, options, callback) {
 	this.elem = elem;
@@ -24,7 +26,7 @@ ProgramRenderer = function(elem, options, callback) {
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
 			location: this.timelineBarGrid / 2,
-			colour: 0xff00ff,
+			colour: pleasejs.make_color()[0],
 			pattern: {
 				length: 1 * this.timelineBarGrid
 			}
@@ -43,9 +45,6 @@ ProgramRenderer = function(elem, options, callback) {
 		patterns: [],
 		active: false
 	}];
-
-
-	debug(this.elem.height())
 
 	if (!callback) {
 		callback = options;
@@ -532,7 +531,7 @@ ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
 
 		if (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn) {
 			this.timelineScroll += event.wheelDeltaY;
-			
+
 			this.drawLayout(false, false);
 		}
 
@@ -650,8 +649,8 @@ ProgramRenderer.prototype.drawCursor = function() {
 	// }})
 }
 
-ProgramRenderer.prototype.drawPatterns = function(redraw, initial){
-	if(initial){
+ProgramRenderer.prototype.drawPatterns = function(redraw, initial) {
+	if (initial) {
 		this.tlpg = new PIXI.Graphics();
 		this.stage.addChild(this.tlpg);
 	}
@@ -661,15 +660,22 @@ ProgramRenderer.prototype.drawPatterns = function(redraw, initial){
 	var timelineWidth = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
 	var barGridStepWidth = timelineWidth / this.options.bars / this.timelineBarGrid;
 
-	debug(barGridStepWidth)
-
-	for(var i = 0 ; i < this.timelineLanes.length; i++){
+	for (var i = 0; i < this.timelineLanes.length; i++) {
 		for (var k = 0; k < this.timelineLanes[i].patterns.length; k++) {
-			
-			debug(this.timelineLanes[i].patterns[k]);
 
-			this.tlpg.beginFill(this.timelineLanes[i].patterns[k].colour);
+			var borderWidth = 2;
+
+			var colour = color(this.timelineLanes[i].patterns[k].colour);
+			colour.darken(0.5);
+
+			this.tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
 			this.tlpg.drawRect(this.options.leftSideWidth + (barGridStepWidth * this.timelineLanes[i].patterns[k].location), i * this.timelineLaneHeight, this.timelineLanes[i].patterns[k].pattern.length * barGridStepWidth, this.timelineLaneHeight);
+			this.tlpg.endFill();
+
+			colour.lighten(0.5);
+
+			this.tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
+			this.tlpg.drawRect(this.options.leftSideWidth + (barGridStepWidth * this.timelineLanes[i].patterns[k].location) + borderWidth, (i * this.timelineLaneHeight) + borderWidth, this.timelineLanes[i].patterns[k].pattern.length * barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
 			this.tlpg.endFill();
 
 		}
