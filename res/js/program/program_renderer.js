@@ -703,9 +703,6 @@ ProgramRenderer.prototype.drawPatterns = function(redraw, initial) {
 				}
 
 				tlpg.mousedown = this.tsbg.touchstart = function(event) {
-
-					debug("Down")
-
 					this.alpha = 0.8;
 					this.dragging = true;
 					this.sx = event.data.getLocalPosition(this).x * this.scale.x;
@@ -731,6 +728,15 @@ ProgramRenderer.prototype.drawPatterns = function(redraw, initial) {
 
 									if (self.timelineLanes[j].patterns[x].id == this.pid) {
 										self.timelineLanes[j].patterns[x].location += Math.floor(diff / barGridStepWidth);
+
+										if(self.timelineLanes[j].patterns[x].location < 0){
+											self.timelineLanes[j].patterns[x].location = 0;
+										}
+
+										if(self.timelineLanes[j].patterns[x].location + self.timelineLanes[j].patterns[x].pattern.length > self.options.bars * self.timelineBarGrid){
+											self.timelineLanes[j].patterns[x].location = (self.options.bars * self.timelineBarGrid) - self.timelineLanes[j].patterns[x].pattern.length;
+										}
+
 									}
 
 								}
