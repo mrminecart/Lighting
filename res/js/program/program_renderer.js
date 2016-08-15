@@ -8,14 +8,10 @@ ProgramRenderer = function(elem, options, callback) {
 	this.elem = elem;
 	this.options = options;
 	this.height = this.elem.height();
-	this.timelineScroll = 0;
+	this.width = this.elem.width();
 
 	this.time = 0;
 	this.bottomBarHeight = 300;
-	this.timelineHeight = this.height - this.bottomBarHeight;
-	this.timelineLaneHeight = 50;
-	this.timelineScrollBarWidth = 15;
-	this.timelineBarGrid = 8;
 
 	this.timelineLanes = [{
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
@@ -25,10 +21,11 @@ ProgramRenderer = function(elem, options, callback) {
 		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
-			location: this.timelineBarGrid / 2,
+			location: 4,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 1 * this.timelineBarGrid
+				length: 8,
+				nodes: []
 			}
 		}],
 		active: false
@@ -65,9 +62,12 @@ ProgramRenderer.prototype.init = function(callback) {
 	 * build
 	 */
 	this.buildStage(callback);
+	
+	this.timelineRenderer = new TimelineRenderer(this);
+
 	this.listenForResize();
 	this.buildLayout();
-	this.buildCursor();
+	this.timelineRenderer.buildCursor();
 	this.buildRightClickMenu();
 
 	this.draw();
@@ -89,8 +89,6 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 		return;
 	}
 
-	this.width = this.elem.width();
-
 	this.renderer = PIXI.autoDetectRenderer(this.width, this.height, {
 		backgroundColor: 0xff00ff
 	});
@@ -106,19 +104,21 @@ ProgramRenderer.prototype.buildStage = function(callback) {
 ProgramRenderer.prototype.listenForResize = function() {
 	$(window).on("resize", function() {
 
-		debug("Detected resize!");
+		// debug("Detected resize!");
 
 		setTimeout(function() {
 			this.width = this.elem.width();
 			this.height = this.elem.height() - 1;
-			this.timelineHeight = this.height - this.bottomBarHeight;
-			this.timelineScroll = 0;
+			this.timelineRenderer.timelineHeight = this.height - this.bottomBarHeight;
+			this.timelineRenderer.timelineScroll  = 0;
 
 			this.renderer.resize(this.width, this.height)
 
 			this.resize();
 
-			debug("Resize complete")
+			// debug(this.height)
+
+			// debug("Resize complete")
 		}.bind(this), 0);
 
 	}.bind(this))
@@ -158,29 +158,7 @@ ProgramRenderer.prototype.buildLayout = function() {
 	 * Get Graphics
 	 */
 
-	/**
-	 * Timeline graphics
-	 * @type {PIXI}
-	 */
-	this.tlg = new PIXI.Graphics();
-	this.tlg.interactive = true;
-	this.stage.addChild(this.tlg);
-
-	this.tlrsg = new PIXI.Graphics();
-	this.tlrsg.interactive = true;
-	this.stage.addChild(this.tlrsg);
-
-	this.tlgbg = new PIXI.Graphics();
-	this.tlgbg.interactive = true;
-	this.stage.addChild(this.tlgbg);
-
-	this.tsbbg = new PIXI.Graphics();
-	this.stage.addChild(this.tsbbg);
-
-	this.tsbg = new PIXI.Graphics();
-	this.tsbg.interactive = true;
-	this.tsbg.buttonMode = true;
-	this.stage.addChild(this.tsbg);
+	this.timelineRenderer.buildGraphics();
 
 	/**
 	 * Right sidebar graphics
@@ -298,9 +276,9 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 
 	document.body.addEventListener('mousedown', function(event) {
 
-		itemContainer2.visible = this.tlg.mouseIn
+		itemContainer2.visible = this.timelineRenderer.tlg.mouseIn
 
-		if (event.button == 2 && (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn)) {
+		if (event.button == 2 && (this.timelineRenderer.tlg.mouseIn || this.timelineRenderer.tlgbg.mouseIn || this.rsbg.mouseIn)) {
 			outerContainer.position.x = this.renderer.plugins.interaction.mouse.global.x;
 			outerContainer.position.y = this.renderer.plugins.interaction.mouse.global.y;
 			outerContainer.visible = true;
@@ -328,98 +306,18 @@ ProgramRenderer.prototype.addNewTimelineLane = function() {
 }
 
 ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
-	this.verifyAndSetTimelineScroll()
+	this.timelineRenderer.verifyAndSetTimelineScroll()
 
 	if (redraw) this.drawLeftSidebar();
 	this.drawRightSidebar(redraw, initial);
 
-	if (redraw) this.drawTimeline(initial);
-	this.buildTimelineScrollBar(redraw, initial);
-	this.drawTimelineRowSeperators();
-	this.drawGreyedOutTimelineArea(initial);
-
-	this.drawPatterns(redraw, initial);
+	this.timelineRenderer.drawTimeline(redraw, initial);
+	this.timelineRenderer.buildTimelineScrollBar(redraw, initial);
+	this.timelineRenderer.drawTimelineRowSeperators();
+	this.timelineRenderer.drawGreyedOutTimelineArea(initial);
+	this.timelineRenderer.drawPatterns(redraw, initial);
 
 	this.drawBottomBar();
-}
-
-ProgramRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
-
-	var xpos = this.width - this.timelineScrollBarWidth;
-
-	if (redraw || initial) {
-		this.tsbbg.clear();
-
-		this.tsbbg.beginFill(0x252525);
-		this.tsbbg.drawRect(xpos, 0, this.timelineScrollBarWidth, this.timelineHeight);
-		this.tsbbg.endFill();
-
-
-		this.scrollBarHeight = 0;
-		var scrollBarPadding = 3;
-
-		this.scrollBarHeight = this.timelineHeight / (this.timelineLaneHeight * (this.timelineLanes.length + 1))
-
-		if (this.scrollBarHeight > 1) {
-			this.scrollBarHeight = 1;
-		}
-
-		this.scrollBarHeight = this.scrollBarHeight * this.timelineHeight
-
-		this.tsbg.clear();
-		this.tsbg.beginFill(0x555555);
-		this.tsbg.drawRect(xpos + scrollBarPadding, scrollBarPadding, this.timelineScrollBarWidth - (scrollBarPadding * 2), this.scrollBarHeight - (scrollBarPadding * 2));
-		this.tsbg.endFill();
-		this.tsbg.position.y = 0;
-
-	}
-
-	this.tsbg.hitArea = this.tsbg.getBounds();
-
-	if (initial) {
-
-		var self = this;
-
-		this.tsbg.mousedown = this.tsbg.touchstart = function(event) {
-			this.alpha = 0.8;
-			self.tsbg.dragging = true;
-			this.sy = event.data.getLocalPosition(self.tsbg).y * self.tsbg.scale.y;
-		}
-
-		this.tsbg.mousemove = this.tsbg.touchmove = function(event) {
-
-			if (self.tsbg.dragging) {
-				// need to get parent coords..
-				var newPosition = event.data.getLocalPosition(this.parent);
-
-				var y = newPosition.y - this.sy;
-
-				if (y + self.scrollBarHeight > self.timelineHeight) {
-					y = self.timelineHeight - self.scrollBarHeight
-				}
-
-				if (y < 0) {
-					y = 0;
-				}
-
-				this.position.y = y;
-
-				var sperc = y / Math.max(1, (self.timelineHeight - self.scrollBarHeight));
-
-				self.timelineScroll = -(sperc * (Math.max(0, (self.timelineElements.length + 1) - (self.timelineHeight / self.timelineElementHeight)) * self.timelineElementHeight));
-
-				self.drawLayout();
-
-			}
-
-		}
-
-		document.body.addEventListener('mouseup', function() {
-			self.tsbg.dragging = false;
-			self.tsbg.alpha = 1;
-		}.bind(this));
-
-	}
 }
 
 ProgramRenderer.prototype.drawBottomBar = function() {
@@ -427,11 +325,11 @@ ProgramRenderer.prototype.drawBottomBar = function() {
 	this.bbg.clear();
 
 	this.bbg.beginFill(0x222222);
-	this.bbg.drawRect(this.options.leftSideWidth, this.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
+	this.bbg.drawRect(this.options.leftSideWidth, this.timelineRenderer.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
 	this.bbg.endFill();
 
 	this.bbg.beginFill(0x111111);
-	this.bbg.drawRect(this.options.leftSideWidth, this.timelineHeight, 1, this.bottomBarHeight);
+	this.bbg.drawRect(this.options.leftSideWidth, this.timelineRenderer.timelineHeight, 1, this.bottomBarHeight);
 	this.bbg.endFill();
 }
 
@@ -450,20 +348,21 @@ ProgramRenderer.prototype.drawLeftSidebar = function() {
 
 ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 
-	var xpos = this.width - this.options.rightSideWidth - this.timelineScrollBarWidth;
+	var xpos = this.width - this.options.rightSideWidth - this.timelineRenderer.timelineScrollBarWidth;
 
 	this.rsbg.clear()
+
+	debug(this.timelineRenderer.timelineHeight)
 
 	/**
 	 * background
 	 */
-
 	this.rsbg.beginFill(0x333333);
-	this.rsbg.drawRect(xpos, 0, this.options.rightSideWidth, this.timelineHeight);
+	this.rsbg.drawRect(xpos, 0, this.options.rightSideWidth, this.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
 
 	this.rsbg.beginFill(0x111111);
-	this.rsbg.drawRect(xpos, 0, 1, this.timelineHeight);
+	this.rsbg.drawRect(xpos, 0, 1, this.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
 
 	/**
@@ -488,136 +387,6 @@ ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 	}
 }
 
-ProgramRenderer.prototype.drawTimeline = function(initial) {
-	var darkBar = false;
-
-	this.tlg.clear();
-
-	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-
-	for (var i = 0; i < this.options.bars; i++) {
-		this.tlg.beginFill(darkBar ? 0x505050 : 0x4a4a4a);
-		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) * i, 0, width / this.options.bars, this.timelineHeight);
-		this.tlg.endFill();
-
-		darkBar = !darkBar;
-	}
-
-	for (var i = 0; i < this.options.bars * 4; i++) {
-		this.tlg.beginFill(0x444444);
-		this.tlg.drawRect(this.options.leftSideWidth + (width / this.options.bars) / 4 * i, 0, 1, this.timelineHeight);
-		this.tlg.endFill();
-	}
-
-	this.tlg.hitArea = this.tlg.getBounds();
-
-	if (initial) {
-		this.bindTimelineWheelScroll();
-	}
-}
-
-ProgramRenderer.prototype.bindTimelineWheelScroll = function() {
-	this.tlg.mouseover = function() {
-		setTimeout(function() {
-			this.mouseIn = true;
-		}.bind(this), 0);
-	}
-
-	this.tlg.mouseout = function() {
-		this.mouseIn = false;
-	}
-
-	document.body.addEventListener('mousewheel', function(event) {
-
-		if (this.tlg.mouseIn || this.tlgbg.mouseIn || this.rsbg.mouseIn) {
-			this.timelineScroll += event.wheelDeltaY;
-
-			this.drawLayout(false, false);
-		}
-
-	}.bind(this));
-}
-
-ProgramRenderer.prototype.verifyAndSetTimelineScroll = function() {
-	if (-this.timelineScroll > (this.timelineLaneHeight * (this.timelineLanes.length + 1)) - this.timelineHeight) {
-		this.timelineScroll = -((this.timelineLaneHeight * (this.timelineLanes.length + 1)) - this.timelineHeight);
-	}
-
-	if (-this.timelineScroll < 0) {
-		this.timelineScroll = 0;
-	}
-
-	var maxHeight = (this.timelineLanes.length + 1) * this.timelineLaneHeight - this.timelineHeight;
-
-	this.tsbg.position.y = Math.abs(-this.timelineScroll / maxHeight) * (this.timelineHeight - this.scrollBarHeight)
-}
-
-ProgramRenderer.prototype.drawTimelineRowSeperators = function() {
-
-	this.tlrsg.clear()
-
-	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-
-	/**
-	 * Draw sepeation lines
-	 */
-	for (var i = 0; i < this.timelineLanes.length; i++) {
-
-		var y = (this.timelineLaneHeight * (i + 1)) - 1 + this.timelineScroll;
-
-		if (y < 0 || y > this.timelineHeight) {
-			continue;
-		}
-
-		this.tlrsg.beginFill(0x555555);
-		this.tlrsg.drawRect(this.options.leftSideWidth, y, width, 1);
-		this.tlrsg.endFill();
-	}
-}
-
-ProgramRenderer.prototype.drawGreyedOutTimelineArea = function(initial) {
-
-	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-
-	/**
-	 * Draw grey'ed out area
-	 */
-	var ypos = this.timelineLaneHeight * this.timelineLanes.length + this.timelineScroll;
-
-	this.tlgbg.clear();
-
-	if (ypos >= 0 && ypos < this.timelineHeight) {
-		this.tlgbg.beginFill(0x111111, 0.2);
-		this.tlgbg.drawRect(this.options.leftSideWidth, ypos, width, this.timelineHeight - (this.timelineLaneHeight * this.timelineLanes.length) - this.timelineScroll);
-		this.tlgbg.endFill();
-	}
-
-	this.tlgbg.hitArea = this.tlgbg.getBounds();
-
-	if (initial) {
-
-		this.tlgbg.mouseover = function() {
-			setTimeout(function() {
-				this.mouseIn = true;
-			}.bind(this), 0);
-		}
-
-		this.tlgbg.mouseout = function() {
-			this.mouseIn = false;
-		}
-
-	}
-}
-
-ProgramRenderer.prototype.buildCursor = function() {
-	this.cg = new PIXI.Graphics();
-	this.stage.addChild(this.cg);
-
-	this.cursor = {
-		pos: 0
-	}
-}
-
 ProgramRenderer.prototype.setTime = function(time) {
 	this.time = time;
 }
@@ -625,163 +394,5 @@ ProgramRenderer.prototype.setTime = function(time) {
 ProgramRenderer.prototype.tick = function() {
 	if (this.meter) this.meter.tick();
 
-	this.drawCursor();
-}
-
-ProgramRenderer.prototype.drawCursor = function() {
-
-	var width = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-	var cursorMoveTime = this.options.bars * 60 / this.options.bpm * 4
-
-	this.cursor.pos = ((this.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
-
-	this.cg.clear();
-	this.cg.beginFill(0xdd2222);
-	this.cg.drawRect(this.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
-	this.cg.endFill();
-
-	// app.dmx.set({1: {
-	// 	0: (Math.sin(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
-	// 	1: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
-	// 	2: 32,//this.cursor.pos * 2.54,
-	// 	3: 100,
-	// 	4: 255
-	// }})
-}
-
-ProgramRenderer.prototype.drawPatterns = function(redraw, initial) {
-	if (initial) {
-
-		var outerContainer = new PIXI.Container();
-		this.stage.addChild(outerContainer);
-	}
-
-	var timelineWidth = this.width - this.options.leftSideWidth - this.options.rightSideWidth - this.timelineScrollBarWidth;
-	var barGridStepWidth = timelineWidth / this.options.bars / this.timelineBarGrid;
-
-	for (var i = 0; i < this.timelineLanes.length; i++) {
-		for (var k = 0; k < this.timelineLanes[i].patterns.length; k++) {
-
-			if (!this.timelineLanes[i].tmp) {
-				this.timelineLanes[i].tmp = {};
-			}
-
-			var tlpg = this.timelineLanes[i].tmp.graphics;
-
-			/**
-			 * init graphics and events
-			 */
-			if (!tlpg) {
-				/**
-				 * make graphics
-				 * @type {PIXI}
-				 */
-				tlpg = new PIXI.Graphics();
-				this.timelineLanes[i].tmp.graphics = tlpg;
-				outerContainer.addChild(tlpg);
-
-				tlpg.interactive = true;
-
-				/**
-				 * Bind to pattern
-				 */
-				tlpg.pid = this.timelineLanes[i].patterns[k].id
-
-				/**
-				 * make draggable
-				 */
-
-				tlpg.mouseover = function() {
-					setTimeout(function() {
-						this.mouseIn = true;
-					}.bind(this), 0);
-
-				}
-
-				tlpg.mouseout = function() {
-					this.mouseIn = false;
-				}
-
-				tlpg.mousedown = this.tsbg.touchstart = function(event) {
-					this.alpha = 0.8;
-					this.dragging = true;
-					this.sx = event.data.getLocalPosition(this).x * this.scale.x;
-					this.diffMoved = 0;
-				}
-
-				var self = this;
-
-				tlpg.mousemove = tlpg.touchmove = function(event) {
-
-					if (this.dragging) {
-
-						// need to get parent coords..
-						var newPosition = event.data.getLocalPosition(this.parent);
-
-						var diff = (newPosition.x - this.sx) - (this.diffMoved * barGridStepWidth);
-
-						if (Math.abs(diff) > barGridStepWidth) {
-
-							for (var j = 0; j < self.timelineLanes.length; j++) {
-
-								for (var x = 0; x < self.timelineLanes[j].patterns.length; x++) {
-
-									if (self.timelineLanes[j].patterns[x].id == this.pid) {
-										self.timelineLanes[j].patterns[x].location += Math.floor(diff / barGridStepWidth);
-
-										if(self.timelineLanes[j].patterns[x].location < 0){
-											self.timelineLanes[j].patterns[x].location = 0;
-										}
-
-										if(self.timelineLanes[j].patterns[x].location + self.timelineLanes[j].patterns[x].pattern.length > self.options.bars * self.timelineBarGrid){
-											self.timelineLanes[j].patterns[x].location = (self.options.bars * self.timelineBarGrid) - self.timelineLanes[j].patterns[x].pattern.length;
-										}
-
-									}
-
-								}
-
-							}
-
-							this.diffMoved += Math.floor(diff / barGridStepWidth);
-
-							self.drawPatterns();
-						}
-
-					}
-
-				}
-
-				document.body.addEventListener('mouseup', function() {
-					this.dragging = false;
-					this.alpha = 1;
-				}.bind(tlpg));
-			}
-
-			/**
-			 * Draw box
-			 */
-			tlpg.clear();
-
-			var borderWidth = 2;
-
-			var colour = color(this.timelineLanes[i].patterns[k].colour);
-			colour.darken(0.5);
-
-			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.options.leftSideWidth + (barGridStepWidth * this.timelineLanes[i].patterns[k].location), i * this.timelineLaneHeight, this.timelineLanes[i].patterns[k].pattern.length * barGridStepWidth, this.timelineLaneHeight);
-			tlpg.endFill();
-
-			colour.lighten(0.5);
-
-			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.options.leftSideWidth + (barGridStepWidth * this.timelineLanes[i].patterns[k].location) + borderWidth, (i * this.timelineLaneHeight) + borderWidth, this.timelineLanes[i].patterns[k].pattern.length * barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
-			tlpg.endFill();
-
-			/**
-			 * Draw pattern
-			 */
-
-		}
-	}
+	this.timelineRenderer.drawCursor();
 }
