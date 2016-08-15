@@ -9,7 +9,7 @@ TimelineRenderer = function(parent) {
 	this.init()
 }
 
-TimelineRenderer.prototype.init = function(){
+TimelineRenderer.prototype.init = function() {
 
 	this.timelineHeight = this.parent.height - this.parent.bottomBarHeight;
 	this.timelineLaneHeight = 50;
@@ -19,7 +19,7 @@ TimelineRenderer.prototype.init = function(){
 
 }
 
-TimelineRenderer.prototype.buildGraphics = function(){
+TimelineRenderer.prototype.buildGraphics = function() {
 	/**
 	 * Timeline graphics
 	 * @type {PIXI}
@@ -47,7 +47,7 @@ TimelineRenderer.prototype.buildGraphics = function(){
 
 TimelineRenderer.prototype.drawTimeline = function(redraw, initial) {
 
-	if(!redraw && !initial) return;
+	if (!redraw && !initial) return;
 
 	var darkBar = false;
 
@@ -286,10 +286,10 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 		this.parent.stage.addChild(outerContainer);
 	}
 
-	var self = this;
+	
 
 	var timelineWidth = this.parent.width - this.parent.options.leftSideWidth - this.parent.options.rightSideWidth - this.timelineScrollBarWidth;
-	self.barGridStepWidth = timelineWidth / this.parent.options.bars / this.timelineBarGrid;
+	this.barGridStepWidth = timelineWidth / this.parent.options.bars / this.timelineBarGrid;
 
 	for (var i = 0; i < this.parent.timelineLanes.length; i++) {
 		for (var k = 0; k < this.parent.timelineLanes[i].patterns.length; k++) {
@@ -304,88 +304,7 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 			 * init graphics and events
 			 */
 			if (!tlpg) {
-				/**
-				 * make graphics
-				 * @type {PIXI}
-				 */
-				tlpg = new PIXI.Graphics();
-				this.parent.timelineLanes[i].patterns[k].tmp.graphics = tlpg;
-				outerContainer.addChild(tlpg);
-
-				tlpg.interactive = true;
-				tlpg.buttonMode = true;
-
-				/**
-				 * Bind to pattern
-				 */
-				tlpg.pid = this.parent.timelineLanes[i].patterns[k].id
-
-				/**
-				 * make draggable
-				 */
-				tlpg.mouseover = function() {
-					setTimeout(function() {
-						this.mouseIn = true;
-					}.bind(this), 0);
-
-				}
-
-				tlpg.mouseout = function() {
-					this.mouseIn = false;
-				}
-
-				tlpg.mousedown = this.tsbg.touchstart = function(event) {
-					this.alpha = 0.8;
-					this.dragging = true;
-					this.sx = event.data.getLocalPosition(this).x * this.scale.x;
-					this.xdiffMoved = 0;
-				}
-
-				tlpg.mousemove = tlpg.touchmove = function(event) {
-
-					if (this.dragging) {
-
-						// need to get parent coords..
-						var newPosition = event.data.getLocalPosition(this.parent);
-
-						var xdiff = (newPosition.x - this.sx) - (this.xdiffMoved * self.barGridStepWidth);
-
-						if (Math.abs(xdiff) > self.barGridStepWidth) {
-
-							for (var j = 0; j < self.parent.timelineLanes.length; j++) {
-
-								for (var x = 0; x < self.parent.timelineLanes[j].patterns.length; x++) {
-
-									if (self.parent.timelineLanes[j].patterns[x].id == this.pid) {
-										self.parent.timelineLanes[j].patterns[x].location += Math.floor(xdiff / self.barGridStepWidth);
-
-										if (self.parent.timelineLanes[j].patterns[x].location < 0) {
-											self.parent.timelineLanes[j].patterns[x].location = 0;
-										}
-
-										if (self.parent.timelineLanes[j].patterns[x].location + self.parent.timelineLanes[j].patterns[x].pattern.length > self.parent.options.bars * self.timelineBarGrid) {
-											self.parent.timelineLanes[j].patterns[x].location = (self.parent.options.bars * self.timelineBarGrid) - self.parent.timelineLanes[j].patterns[x].pattern.length;
-										}
-
-									}
-
-								}
-
-							}
-
-							this.xdiffMoved += Math.floor(xdiff / self.barGridStepWidth);
-
-							self.drawPatterns();
-						}
-
-					}
-
-				}
-
-				document.body.addEventListener('mouseup', function() {
-					this.dragging = false;
-					this.alpha = 1;
-				}.bind(tlpg));
+				tlpg = this.makeTimelinePatternGraphics(i, k, outerContainer);
 			}
 
 			/**
@@ -399,13 +318,13 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 			colour.darken(0.5);
 
 			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location), (i * this.timelineLaneHeight) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth, this.timelineLaneHeight);
+			tlpg.drawRect(this.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location), (i * this.timelineLaneHeight) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * this.barGridStepWidth, this.timelineLaneHeight);
 			tlpg.endFill();
 
 			colour.lighten(0.5);
 
 			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location) + borderWidth, ((i * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
+			tlpg.drawRect(this.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location) + borderWidth, ((i * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * this.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
 			tlpg.endFill();
 
 			/**
@@ -414,4 +333,93 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 
 		}
 	}
+}
+
+TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, patternIndex, outerContainer){
+	/**
+	 * make graphics
+	 * @type {PIXI}
+	 */
+	tlpg = new PIXI.Graphics();
+	this.parent.timelineLanes[laneIndex].patterns[patternIndex].tmp.graphics = tlpg;
+	outerContainer.addChild(tlpg);
+
+	tlpg.interactive = true;
+	tlpg.buttonMode = true;
+
+	/**
+	 * Bind to pattern
+	 */
+	tlpg.pid = this.parent.timelineLanes[laneIndex].patterns[patternIndex].id
+
+	var self = this;
+
+	/**
+	 * make draggable
+	 */
+	tlpg.mouseover = function() {
+		setTimeout(function() {
+			this.mouseIn = true;
+		}.bind(this), 0);
+
+	}
+
+	tlpg.mouseout = function() {
+		this.mouseIn = false;
+	}
+
+	tlpg.mousedown = this.tsbg.touchstart = function(event) {
+		this.alpha = 0.8;
+		this.dragging = true;
+		this.sx = event.data.getLocalPosition(this).x * this.scale.x;
+		this.xdiffMoved = 0;
+	}
+
+	tlpg.mousemove = tlpg.touchmove = function(event) {
+
+		if (this.dragging) {
+
+			// need to get parent coords..
+			var newPosition = event.data.getLocalPosition(this.parent);
+
+			var xdiff = (newPosition.x - this.sx) - (this.xdiffMoved * self.barGridStepWidth);
+
+			if (Math.abs(xdiff) > self.barGridStepWidth) {
+
+				for (var j = 0; j < self.parent.timelineLanes.length; j++) {
+
+					for (var x = 0; x < self.parent.timelineLanes[j].patterns.length; x++) {
+
+						if (self.parent.timelineLanes[j].patterns[x].id == this.pid) {
+							self.parent.timelineLanes[j].patterns[x].location += parseInt(xdiff / self.barGridStepWidth);
+
+							if (self.parent.timelineLanes[j].patterns[x].location < 0) {
+								self.parent.timelineLanes[j].patterns[x].location = 0;
+							}
+
+							if (self.parent.timelineLanes[j].patterns[x].location + self.parent.timelineLanes[j].patterns[x].pattern.length > self.parent.options.bars * self.timelineBarGrid) {
+								self.parent.timelineLanes[j].patterns[x].location = (self.parent.options.bars * self.timelineBarGrid) - self.parent.timelineLanes[j].patterns[x].pattern.length;
+							}
+
+						}
+
+					}
+
+				}
+
+				this.xdiffMoved += parseInt(xdiff / self.barGridStepWidth);
+
+				self.drawPatterns();
+			}
+
+		}
+
+	}
+
+	document.body.addEventListener('mouseup', function() {
+		this.dragging = false;
+		this.alpha = 1;
+	}.bind(tlpg));
+
+	return tlpg;
 }
