@@ -352,8 +352,6 @@ ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 
 	this.rsbg.clear()
 
-	debug(this.timelineRenderer.timelineHeight)
-
 	/**
 	 * background
 	 */

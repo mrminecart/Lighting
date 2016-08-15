@@ -15,6 +15,8 @@ TimelineRenderer.prototype.init = function(){
 	this.timelineLaneHeight = 50;
 	this.timelineScrollBarWidth = 15;
 	this.timelineBarGrid = 8;
+	this.timelineScroll = 0;
+
 }
 
 TimelineRenderer.prototype.buildGraphics = function(){
@@ -137,9 +139,9 @@ TimelineRenderer.prototype.buildTimelineScrollBar = function(redraw, initial) {
 
 				var sperc = y / Math.max(1, (self.timelineHeight - self.scrollBarHeight));
 
-				self.timelineScroll = -(sperc * (Math.max(0, (self.timelineElements.length + 1) - (self.timelineHeight / self.timelineElementHeight)) * self.timelineElementHeight));
+				self.timelineScroll = -(sperc * (Math.max(0, (self.parent.timelineLanes.length + 1) - (self.timelineHeight / self.timelineLaneHeight)) * self.timelineLaneHeight));
 
-				self.drawLayout();
+				self.parent.drawLayout();
 
 			}
 
@@ -169,7 +171,7 @@ TimelineRenderer.prototype.bindTimelineWheelScroll = function() {
 		if (this.tlg.mouseIn || this.tlgbg.mouseIn || this.parent.rsbg.mouseIn) {
 			this.timelineScroll += event.wheelDeltaY;
 
-			this.drawLayout(false, false);
+			this.parent.drawLayout(false, false);
 		}
 
 	}.bind(this));
@@ -194,6 +196,7 @@ TimelineRenderer.prototype.drawTimelineRowSeperators = function() {
 	this.tlrsg.clear()
 
 	var width = this.parent.width - this.parent.options.leftSideWidth - this.parent.options.rightSideWidth - this.timelineScrollBarWidth;
+
 
 	/**
 	 * Draw sepeation lines
@@ -396,13 +399,13 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 			colour.darken(0.5);
 
 			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location), i * this.timelineLaneHeight, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth, this.timelineLaneHeight);
+			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location), (i * this.timelineLaneHeight) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth, this.timelineLaneHeight);
 			tlpg.endFill();
 
 			colour.lighten(0.5);
 
 			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location) + borderWidth, (i * this.timelineLaneHeight) + borderWidth, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
+			tlpg.drawRect(this.parent.options.leftSideWidth + (self.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location) + borderWidth, ((i * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * self.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
 			tlpg.endFill();
 
 			/**
