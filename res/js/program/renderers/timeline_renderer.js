@@ -263,30 +263,34 @@ TimelineRenderer.prototype.drawCursor = function() {
 	var width = this.parent.width - this.parent.options.leftSideWidth - this.parent.options.rightSideWidth - this.timelineScrollBarWidth;
 	var cursorMoveTime = this.parent.options.bars * 60 / this.parent.options.bpm * 4
 
-	this.cursor.pos = ((this.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
+	this.cursor.pos = ((this.parent.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
 
 	this.cg.clear();
 	this.cg.beginFill(0xdd2222);
 	this.cg.drawRect(this.parent.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
 	this.cg.endFill();
 
-	// app.dmx.set({1: {
-	// 	0: (Math.sin(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
-	// 	1: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 32) + 128,
-	// 	2: 32,//this.cursor.pos * 2.54,
-	// 	3: 100,
-	// 	4: 255
-	// }})
+	app.dmx.set({
+		1: {
+			0: (Math.sin(this.cursor.pos / 100 * Math.PI * 2) * 64) + 128,
+			1: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 64) + 128,
+			2: 250, //this.cursor.pos * 2.54,
+			3: (this.parent.options.running ? 50 : 30),
+			4: (this.parent.options.running ? 50 : 30),
+		}
+	})
+
 }
 
 TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
+
 	if (initial) {
 
-		var outerContainer = new PIXI.Container();
-		this.parent.stage.addChild(outerContainer);
+		this.outerContainer = new PIXI.Container();
+		this.parent.stage.addChild(this.outerContainer);
 	}
 
-	
+
 
 	var timelineWidth = this.parent.width - this.parent.options.leftSideWidth - this.parent.options.rightSideWidth - this.timelineScrollBarWidth;
 	this.barGridStepWidth = timelineWidth / this.parent.options.bars / this.timelineBarGrid;
@@ -304,7 +308,7 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 			 * init graphics and events
 			 */
 			if (!tlpg) {
-				tlpg = this.makeTimelinePatternGraphics(i, k, outerContainer);
+				tlpg = this.makeTimelinePatternGraphics(i, k, this.outerContainer);
 			}
 
 			/**
@@ -321,7 +325,7 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 			tlpg.drawRect(this.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location), (i * this.timelineLaneHeight) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * this.barGridStepWidth, this.timelineLaneHeight);
 			tlpg.endFill();
 
-			colour.lighten(0.5);
+			colour.lighten(0.7);
 
 			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
 			tlpg.drawRect(this.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.timelineLanes[i].patterns[k].location) + borderWidth, ((i * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, this.parent.timelineLanes[i].patterns[k].pattern.length * this.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
@@ -335,7 +339,7 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 	}
 }
 
-TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, patternIndex, outerContainer){
+TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, patternIndex, outerContainer) {
 	/**
 	 * make graphics
 	 * @type {PIXI}
@@ -373,6 +377,8 @@ TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, pat
 		this.dragging = true;
 		this.sx = event.data.getLocalPosition(this).x * this.scale.x;
 		this.xdiffMoved = 0;
+
+		self.parent.selectPattern(this.pid);
 	}
 
 	tlpg.mousemove = tlpg.touchmove = function(event) {

@@ -14,31 +14,42 @@ ProgramRenderer = function(elem, options, callback) {
 	this.bottomBarHeight = 300;
 
 	this.timelineLanes = [{
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [],
 		active: true
 	}, {
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
 			location: 4,
 			colour: pleasejs.make_color()[0],
 			pattern: {
 				length: 8,
-				nodes: []
+				nodes: [{
+					x: 0,
+					y: 0
+				},
+				{
+					x: 50,
+					y: 128
+				},
+				{
+					x: 100,
+					y: 0
+				}]
 			}
 		}],
 		active: false
 	}, {
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [],
 		active: false
 	}, {
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [],
 		active: false
 	}, {
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [],
 		active: false
 	}];
@@ -64,6 +75,7 @@ ProgramRenderer.prototype.init = function(callback) {
 	this.buildStage(callback);
 	
 	this.timelineRenderer = new TimelineRenderer(this);
+	this.bottomBarRenderer = new BottomBarRenderer(this);
 
 	this.listenForResize();
 	this.buildLayout();
@@ -159,6 +171,7 @@ ProgramRenderer.prototype.buildLayout = function() {
 	 */
 
 	this.timelineRenderer.buildGraphics();
+	this.bottomBarRenderer.buildGraphics();
 
 	/**
 	 * Right sidebar graphics
@@ -174,14 +187,6 @@ ProgramRenderer.prototype.buildLayout = function() {
 	 */
 	this.lsbg = new PIXI.Graphics();
 	this.stage.addChild(this.lsbg);
-
-	/**
-	 * Bottom bar graphics
-	 * @type {PIXI}
-	 */
-	this.bbg = new PIXI.Graphics();
-	this.bbg.interactive = true;
-	this.stage.addChild(this.bbg);
 
 	this.drawLayout(true, true);
 }
@@ -297,7 +302,7 @@ ProgramRenderer.prototype.addNewTimelineLane = function() {
 	}
 
 	this.timelineLanes.push({
-		fixtures: ["bd502709-eaea-4174-84b4-c04b1c914ffc"],
+		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
 		patterns: [],
 		active: true
 	})
@@ -317,20 +322,7 @@ ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	this.timelineRenderer.drawGreyedOutTimelineArea(initial);
 	this.timelineRenderer.drawPatterns(redraw, initial);
 
-	this.drawBottomBar();
-}
-
-ProgramRenderer.prototype.drawBottomBar = function() {
-
-	this.bbg.clear();
-
-	this.bbg.beginFill(0x222222);
-	this.bbg.drawRect(this.options.leftSideWidth, this.timelineRenderer.timelineHeight, this.width - this.options.leftSideWidth, this.bottomBarHeight);
-	this.bbg.endFill();
-
-	this.bbg.beginFill(0x111111);
-	this.bbg.drawRect(this.options.leftSideWidth, this.timelineRenderer.timelineHeight, 1, this.bottomBarHeight);
-	this.bbg.endFill();
+	this.bottomBarRenderer.redraw();
 }
 
 ProgramRenderer.prototype.drawLeftSidebar = function() {
@@ -393,4 +385,25 @@ ProgramRenderer.prototype.tick = function() {
 	if (this.meter) this.meter.tick();
 
 	this.timelineRenderer.drawCursor();
+}
+
+
+ProgramRenderer.prototype.selectPattern = function(pid){
+	this.selectedPattern = this.getPatternFromPid(pid);
+
+	this.bottomBarRenderer.redraw();
+}
+
+ProgramRenderer.prototype.getPatternFromPid = function(pid) {
+	for (var j = 0; j < this.timelineLanes.length; j++) {
+
+		for (var x = 0; x < this.timelineLanes[j].patterns.length; x++) {
+
+			if (this.timelineLanes[j].patterns[x].id == pid) {
+				return this.timelineLanes[j].patterns[x];
+			}
+
+		}
+
+	}
 }
