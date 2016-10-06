@@ -25,6 +25,10 @@ BottomBarRenderer.prototype.buildGraphics = function() {
 	this.bblg = new PIXI.Graphics();
 	this.bblg.interactive = true;
 	this.parent.stage.addChild(this.bblg);
+
+	this.bblpg = new PIXI.Graphics();
+	this.bblpg.interactive = true;
+	this.parent.stage.addChild(this.bblpg);
 }
 
 BottomBarRenderer.prototype.buildCursor = function() {
@@ -60,18 +64,19 @@ BottomBarRenderer.prototype.drawCursor = function() {
 
 }
 
-BottomBarRenderer.prototype.redraw = function(){
+BottomBarRenderer.prototype.redraw = function() {
 	this.draw();
 }
 
-BottomBarRenderer.prototype.draw = function(){
+BottomBarRenderer.prototype.draw = function() {
 
 	debug("Drawing Bottom bar")
 
 	this.bbg.clear();
 	this.bblg.clear();
+	this.bblpg.clear();
 
-	if(!this.parent.selectedPattern){
+	if (!this.parent.selectedPattern) {
 		this.bbg.beginFill(0x222222);
 		this.bbg.drawRect(this.parent.options.leftSideWidth, this.parent.timelineRenderer.timelineHeight, this.parent.width - this.parent.options.leftSideWidth, this.parent.bottomBarHeight);
 		this.bbg.endFill();
@@ -86,17 +91,21 @@ BottomBarRenderer.prototype.draw = function(){
 	this.bbg.endFill();
 
 	this.drawPatternLines();
+	this.drawPatternPoints();
 
 }
 
-BottomBarRenderer.prototype.drawPatternLines = function(){
+BottomBarRenderer.prototype.drawPatternLines = function() {
 
-	for (var i = this.bblg.children.length - 1; i >= 0; i--) {	this.bblg.removeChild(this.bblg.children[i]);};
+	for (var i = this.bblg.children.length - 1; i >= 0; i--) {
+		this.bblg.removeChild(this.bblg.children[i]);
+	};
+
 	this.bblg.clear();
 
 	var pattern = this.parent.selectedPattern.pattern;
 
-	var lineColour = color(this.parent.selectedPattern.colour);
+	var lineColour = color(this.parent.selectedPattern.colour).darken(0.3);
 
 	var width = this.parent.width - this.parent.options.leftSideWidth;
 	var xPad = this.parent.options.leftSideWidth;
@@ -105,8 +114,31 @@ BottomBarRenderer.prototype.drawPatternLines = function(){
 		var line = new PIXI.Graphics().lineStyle(1, parseInt(lineColour.hexString().substring(1), 16));
 
 		line.moveTo(xPad + ((pattern.nodes[i].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 256)));
-        line.lineTo(xPad + ((pattern.nodes[i + 1].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i + 1].y / 256)));
+		line.lineTo(xPad + ((pattern.nodes[i + 1].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i + 1].y / 256)));
 
-        this.bblg.addChild(line);
+		this.bblg.addChild(line);
 	}
+}
+
+BottomBarRenderer.prototype.drawPatternPoints = function() {
+	this.bblpg.clear();
+
+	var pointWidth = 6;
+
+	var pattern = this.parent.selectedPattern.pattern;
+
+	var pointColour = color(this.parent.selectedPattern.colour)//.lighten(0.1);
+
+	var width = this.parent.width - this.parent.options.leftSideWidth;
+	var xPad = this.parent.options.leftSideWidth;
+
+	this.bblpg.beginFill(parseInt(pointColour.hexString().substring(1), 16));
+
+	for (var i = 0; i < pattern.nodes.length; i++) {
+		var centerx = xPad + ((pattern.nodes[i].x / 100) * width);
+		var centery = this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 256));
+		this.bblpg.drawRect(centerx - pointWidth / 2, centery - pointWidth / 2, pointWidth, pointWidth);
+	}
+
+	this.bblpg.endFill();
 }
