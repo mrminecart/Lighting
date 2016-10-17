@@ -4,62 +4,17 @@ const app = remote.getGlobal('app_main');
 const pleasejs = require("pleasejs");
 const color = require("color");
 
-ProgramRenderer = function(elem, options, callback) {
+ProgramRenderer = function(parent, elem, callback) {
+	this.parent = parent;
 	this.elem = elem;
-	this.options = options;
 	this.height = this.elem.height();
 	this.width = this.elem.width();
-
-	this.time = 0;
 	this.bottomBarHeight = 300;
-
-	this.timelineLanes = [{
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [],
-		active: true
-	}, {
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [{
-			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
-			location: 4,
-			colour: pleasejs.make_color()[0],
-			pattern: {
-				length: 8,
-				nodes: [{
-					x: 0,
-					y: 0
-				},
-				{
-					x: 50,
-					y: 128
-				},
-				{
-					x: 100,
-					y: 0
-				}]
-			}
-		}],
-		active: false
-	}, {
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [],
-		active: false
-	}, {
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [],
-		active: false
-	}, {
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [],
-		active: false
-	}];
 
 	if (!callback) {
 		callback = options;
-		this.options = {};
+		this.parent.options = {};
 	}
-
-	this.options = this.buildOptions(this.options);
 
 	this.init(callback);
 }
@@ -134,23 +89,6 @@ ProgramRenderer.prototype.listenForResize = function() {
 		}.bind(this), 0);
 
 	}.bind(this))
-}
-
-ProgramRenderer.prototype.buildOptions = function(options) {
-
-	var obj = {
-		running: true,
-		bpm: 120,
-		bars: 4,
-		leftSideWidth: 300,
-		rightSideWidth: 100
-	}
-
-	for (var attrname in options) {
-		obj[attrname] = options[attrname];
-	}
-
-	return obj;
 }
 
 ProgramRenderer.prototype.draw = function() {
@@ -236,7 +174,7 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 	itemContainer1.hitArea = itemContainer1.getBounds();
 
 	itemContainer1.mousedown = function(event) {
-		this.addNewTimelineLane();
+		this.parent.addNewTimelineLane();
 	}.bind(this)
 
 	innerContainer.addChild(itemContainer1);
@@ -273,8 +211,9 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 	itemContainer2.hitArea = itemContainer2.getBounds();
 
 	itemContainer2.mousedown = function(event) {
-		this.addNewPattern();
-	}
+		// this.addNewPattern();
+		alert("Not done yet!")
+	}.bind(this)
 
 	innerContainer.addChild(itemContainer2);
 
@@ -293,21 +232,6 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 
 		outerContainer.visible = false;
 	}.bind(this));
-}
-
-ProgramRenderer.prototype.addNewTimelineLane = function() {
-
-	for (var i = 0; i < this.timelineLanes.length; i++) {
-		this.timelineLanes[i].active = false;
-	}
-
-	this.timelineLanes.push({
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		patterns: [],
-		active: true
-	})
-
-	this.drawLayout(true, false);
 }
 
 ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
@@ -330,17 +254,17 @@ ProgramRenderer.prototype.drawLeftSidebar = function() {
 	this.lsbg.clear()
 
 	this.lsbg.beginFill(0x777777);
-	this.lsbg.drawRect(0, 0, this.options.leftSideWidth, this.height);
+	this.lsbg.drawRect(0, 0, this.parent.options.leftSideWidth, this.height);
 	this.lsbg.endFill();
 
 	this.lsbg.beginFill(0x111111);
-	this.lsbg.drawRect(this.options.leftSideWidth, 0, 1, this.height);
+	this.lsbg.drawRect(this.parent.options.leftSideWidth, 0, 1, this.height);
 	this.lsbg.endFill();
 }
 
 ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 
-	var xpos = this.width - this.options.rightSideWidth - this.timelineRenderer.timelineScrollBarWidth;
+	var xpos = this.width - this.parent.options.rightSideWidth - this.timelineRenderer.timelineScrollBarWidth;
 
 	this.rsbg.clear()
 
@@ -348,7 +272,7 @@ ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 	 * background
 	 */
 	this.rsbg.beginFill(0x333333);
-	this.rsbg.drawRect(xpos, 0, this.options.rightSideWidth, this.timelineRenderer.timelineHeight);
+	this.rsbg.drawRect(xpos, 0, this.parent.options.rightSideWidth, this.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
 
 	this.rsbg.beginFill(0x111111);
@@ -377,10 +301,6 @@ ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
 	}
 }
 
-ProgramRenderer.prototype.setTime = function(time) {
-	this.time = time;
-}
-
 ProgramRenderer.prototype.tick = function() {
 	if (this.meter) this.meter.tick();
 
@@ -395,12 +315,12 @@ ProgramRenderer.prototype.selectPattern = function(pid){
 }
 
 ProgramRenderer.prototype.getPatternFromPid = function(pid) {
-	for (var j = 0; j < this.timelineLanes.length; j++) {
+	for (var j = 0; j < this.parent.timelines.length; j++) {
 
-		for (var x = 0; x < this.timelineLanes[j].patterns.length; x++) {
+		for (var x = 0; x < this.parent.timelines[j].patterns.length; x++) {
 
-			if (this.timelineLanes[j].patterns[x].id == pid) {
-				return this.timelineLanes[j].patterns[x];
+			if (this.parent.timelines[j].patterns[x].id == pid) {
+				return this.parent.timelines[j].patterns[x];
 			}
 
 		}

@@ -42,14 +42,14 @@ BottomBarRenderer.prototype.buildCursor = function() {
 
 BottomBarRenderer.prototype.drawCursor = function() {
 
-	var width = this.parent.width - this.parent.options.leftSideWidth - this.parent.options.rightSideWidth - this.timelineScrollBarWidth;
-	var cursorMoveTime = this.parent.options.bars * 60 / this.parent.options.bpm * 4
+	var width = this.parent.width - this.parent.parent.options.leftSideWidth - this.parent.parent.options.rightSideWidth - this.timelineScrollBarWidth;
+	var cursorMoveTime = this.parent.parent.options.bars * 60 / this.parent.parent.options.bpm * 4
 
-	this.cursor.pos = ((this.parent.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
+	this.cursor.pos = ((this.parent.parent.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime)
 
 	this.cg.clear();
 	this.cg.beginFill(0xdd2222);
-	this.cg.drawRect(this.parent.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
+	this.cg.drawRect(this.parent.parent.options.leftSideWidth + (width * (this.cursor.pos / 100)), 0, 1, this.timelineHeight);
 	this.cg.endFill();
 
 	app.dmx.set({
@@ -57,8 +57,8 @@ BottomBarRenderer.prototype.drawCursor = function() {
 			0: (Math.sin(this.cursor.pos / 100 * Math.PI * 2) * 64) + 128,
 			1: (Math.cos(this.cursor.pos / 100 * Math.PI * 2) * 64) + 128,
 			2: 250, //this.cursor.pos * 2.54,
-			3: (this.parent.options.running ? 50 : 30),
-			4: (this.parent.options.running ? 50 : 30),
+			3: (this.parent.parent.options.running ? 50 : 30),
+			4: (this.parent.parent.options.running ? 50 : 30),
 		}
 	})
 
@@ -78,7 +78,7 @@ BottomBarRenderer.prototype.draw = function() {
 
 	if (!this.parent.selectedPattern) {
 		this.bbg.beginFill(0x222222);
-		this.bbg.drawRect(this.parent.options.leftSideWidth, this.parent.timelineRenderer.timelineHeight, this.parent.width - this.parent.options.leftSideWidth, this.parent.bottomBarHeight);
+		this.bbg.drawRect(this.parent.parent.options.leftSideWidth, this.parent.timelineRenderer.timelineHeight, this.parent.width - this.parent.parent.options.leftSideWidth, this.parent.bottomBarHeight);
 		this.bbg.endFill();
 		return;
 	}
@@ -87,7 +87,7 @@ BottomBarRenderer.prototype.draw = function() {
 	background.darken(0.8);
 
 	this.bbg.beginFill(parseInt(background.hexString().substring(1), 16));
-	this.bbg.drawRect(this.parent.options.leftSideWidth, this.parent.timelineRenderer.timelineHeight, this.parent.width - this.parent.options.leftSideWidth, this.parent.bottomBarHeight);
+	this.bbg.drawRect(this.parent.parent.options.leftSideWidth, this.parent.timelineRenderer.timelineHeight, this.parent.width - this.parent.parent.options.leftSideWidth, this.parent.bottomBarHeight);
 	this.bbg.endFill();
 
 	this.drawPatternLines();
@@ -107,8 +107,8 @@ BottomBarRenderer.prototype.drawPatternLines = function() {
 
 	var lineColour = color(this.parent.selectedPattern.colour).darken(0.3);
 
-	var width = this.parent.width - this.parent.options.leftSideWidth;
-	var xPad = this.parent.options.leftSideWidth;
+	var width = this.parent.width - this.parent.parent.options.leftSideWidth;
+	var xPad = this.parent.parent.options.leftSideWidth;
 
 	for (var i = 0; i < pattern.nodes.length - 1; i++) {
 		var line = new PIXI.Graphics().lineStyle(1, parseInt(lineColour.hexString().substring(1), 16));
@@ -129,8 +129,8 @@ BottomBarRenderer.prototype.drawPatternPoints = function() {
 
 	var pointColour = color(this.parent.selectedPattern.colour)//.lighten(0.1);
 
-	var width = this.parent.width - this.parent.options.leftSideWidth;
-	var xPad = this.parent.options.leftSideWidth;
+	var width = this.parent.width - this.parent.parent.options.leftSideWidth;
+	var xPad = this.parent.parent.options.leftSideWidth;
 
 	this.bblpg.beginFill(parseInt(pointColour.hexString().substring(1), 16));
 
