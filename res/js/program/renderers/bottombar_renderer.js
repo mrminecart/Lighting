@@ -113,8 +113,8 @@ BottomBarRenderer.prototype.drawPatternLines = function() {
 	for (var i = 0; i < pattern.nodes.length - 1; i++) {
 		var line = new PIXI.Graphics().lineStyle(1, parseInt(lineColour.hexString().substring(1), 16));
 
-		line.moveTo(xPad + ((pattern.nodes[i].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 256)));
-		line.lineTo(xPad + ((pattern.nodes[i + 1].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i + 1].y / 256)));
+		line.moveTo(xPad + ((pattern.nodes[i].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 100)));
+		line.lineTo(xPad + ((pattern.nodes[i + 1].x / 100) * width), this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i + 1].y / 100)));
 
 		this.bblg.addChild(line);
 	}
@@ -136,7 +136,7 @@ BottomBarRenderer.prototype.drawPatternPoints = function() {
 
 	for (var i = 0; i < pattern.nodes.length; i++) {
 		var centerx = xPad + ((pattern.nodes[i].x / 100) * width);
-		var centery = this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 256));
+		var centery = this.parent.height - (this.parent.bottomBarHeight * (pattern.nodes[i].y / 100));
 		this.bblpg.drawRect(centerx - pointWidth / 2, centery - pointWidth / 2, pointWidth, pointWidth);
 	}
 

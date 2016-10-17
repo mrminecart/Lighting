@@ -35,7 +35,7 @@ var Program = function() {
 					y: 0
 				}, {
 					x: 50,
-					y: 200
+					y: 100
 				}, {
 					x: 100,
 					y: 0
@@ -177,18 +177,35 @@ Program.prototype.getTimelineValue = function(timeline_id, cursorPosition) {
 			/**
 			 * have we gone past the start of this pattern?
 			 */
-			if(cursorPosition - this.timelines[i].patterns[k].location < 0) continue;
+			if(cursorPosition.pos - this.timelines[i].patterns[k].location < 0) continue;
 
 			/**
 			 * have we gone past it?
 			 */
-			if(cursorPosition - this.timelines[i].patterns[k].location - this.timelines[i].patterns[k].pattern.length > 0) continue;
+			if(cursorPosition.pos - this.timelines[i].patterns[k].location - this.timelines[i].patterns[k].pattern.length > 0) continue;
 
 			/**
 			 * if we are here, the pattern is currently active
 			 */
 			
-			debug("yay!");
+			var percentThrough = ((cursorPosition.pos - this.timelines[i].patterns[k].location) / this.timelines[i].patterns[k].pattern.length) * 100;
+
+			// debug(percentThrough);
+
+			//Make sure nodes is in order, could be a little exspensive though? :/
+			var nodes = this.timelines[i].patterns[k].pattern.nodes.sort(function(a, b){
+				return a.x - b.x;
+			})
+
+			for (var j = 0; j < nodes.length - 1; j++) {
+				/**
+				 * Check if we are between these points, skip if not
+				 */
+				if(!(percentThrough > nodes[j].x && percentThrough < nodes[j + 1].x)) continue;
+
+				debug(j);
+				debug("Wiffle face mgee!")
+			}
 
 		}
 	}
@@ -213,7 +230,7 @@ Program.prototype.getChannelValues = function() {
 Program.prototype.getCursorTimelinePosition = function(){
 	var cursorMoveTime = this.options.bars * 60 / this.options.bpm * 4
 	var percent = ((this.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime);
-	return (this.options.bars * 4 * 2) * (percent / 100)
+	return {percent: percent, pos: (this.options.bars * 4 * 2) * (percent / 100)};
 }
 
 Program.prototype.addNewTimelineLane = function() {
