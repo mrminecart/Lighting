@@ -17,7 +17,7 @@ App.prototype.init = function(){
 
   this.settings = new SettingsManager(this, app);
   this.fixture_manager = new FixtureManager(this, app);
-  this.dmx = new DmxManager();
+  this.dmx = new DmxManager(this, app);
   this.wm = new WindowManager();
 
   this.wm.createWindow();

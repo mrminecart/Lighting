@@ -1,6 +1,4 @@
 const debug = require('debug')("li:settings:fixture_manager");
-const electron = require('electron');
-const app = electron.app;
 const uuid = require('uuid');
 const path = require('path');
 const fs = require('fs');
@@ -67,11 +65,11 @@ FixtureManager.prototype.getFixture = function(fid) {
     }
   }
 
-  if(!fix){
-    return fix;
-  }
-
   return fix
+}
+
+FixtureManager.prototype.getFixtureType = function(type){
+  return this.fixture_types[type];
 }
 
 FixtureManager.prototype.addFixture = function(options) {

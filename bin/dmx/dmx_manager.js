@@ -3,7 +3,12 @@ const redis = require("redis");
 const path = require("path");
 const spawn = require('child_process').spawn;
 
-const DmxManager = function() {
+const DmxManager = function(parent, app) {
+	this.parent = parent;
+	this.app = app;
+
+	this.bitness = 255 / 100;
+
 	debug("Starting DMX...");
 
 	this.init();
@@ -132,6 +137,34 @@ DmxManager.prototype.set = function(packet) {
 
 		}
 	}
+}
+
+DmxManager.prototype.writeFixtureState = function(fixtures){
+	var packet = {1: {}};
+
+	var keys = Object.keys(fixtures);
+
+	for (var i = 0; i < keys.length; i++) {
+		var fixture = this.parent.fixture_manager.getFixture(keys[i]).data;
+		var channels = this.parent.fixture_manager.getFixtureType(fixture.type).channels;
+
+		var deltaChannels = Object.keys(fixtures[keys[i]]);
+
+		for (var k = 0; k < deltaChannels.length; k++) {
+
+			var channel = -Infinity;
+
+			for (var j = 0; j < channels.length; j++) {
+				if(channels[j].type == deltaChannels[k]){
+					channel = j - 1;
+				}
+			}
+
+			packet[1][parseInt(channel) + parseInt(fixture.channel)] = fixtures[keys[i]][deltaChannels[k]] * this.bitness;
+		}
+	}
+
+	this.set(packet);
 }
 
 DmxManager.prototype.run = function() {

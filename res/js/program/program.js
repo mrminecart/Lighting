@@ -42,21 +42,6 @@ var Program = function() {
 				}]
 			}
 		}]
-	}, {
-		id: "wertwert",
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		channel_type: "move_pan",
-		patterns: []
-	}, {
-		id: "xcvbxcvb",
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		channel_type: "move_pan",
-		patterns: []
-	}, {
-		id: "hjkghjk",
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		channel_type: "move_pan",
-		patterns: []
 	}];
 
 	this.init();
@@ -130,7 +115,7 @@ Program.prototype.togglePause = function() {
 	this.options.running = !this.options.running;
 }
 
-Program.prototype.gotoStart = function(){
+Program.prototype.gotoStart = function() {
 	debug("Going to start of timeline")
 	this.timing.timeOffset = new Date().getTime();
 }
@@ -142,19 +127,45 @@ Program.prototype.run = function() {
 Program.prototype.tick = function() {
 	this.calcTime();
 
-	var channelValues = this.getChannelValues();
-
-	if(channelValues.length > 0){
-		debug(channelValues);
-	}
+	app.dmx.writeFixtureState(this.getFixtureDelta(this.getAllTimelineValues()));
 
 	setTimeout(this.tick.bind(this), 1000 / 60)
+}
+
+Program.prototype.getFixtureDelta = function(timelineValues){
+	var fixtureData = {};
+
+	var keys = Object.keys(timelineValues)
+
+	for (var i = keys.length - 1; i >= 0; i--) {
+		
+		var fixtures = [];
+		var channel_type = "";
+
+		for (var k = 0; k < this.timelines.length; k++) {
+			if(this.timelines[k].id == keys[i]){
+				fixtures = this.timelines[k].fixtures;
+				channel_type = this.timelines[k].channel_type;
+			}
+		}
+
+		for (var j = 0; j < fixtures.length; j++) {
+			if(!fixtureData[fixtures[j]]){
+				fixtureData[fixtures[j]] = {};
+			}
+
+			fixtureData[fixtures[j]][channel_type] = timelineValues[keys[i]];
+
+		}
+	}
+
+	return fixtureData;
 }
 
 Program.prototype.calcTime = function() {
 	var now = new Date().getTime();
 	this.timing.deltaTime = now - this.timing.lastTick;
-	this.timing.lastTick = now; 
+	this.timing.lastTick = now;
 
 	if (this.options.running) {
 		this.time = new Date().getTime() - this.timing.timeOffset;
@@ -167,7 +178,7 @@ Program.prototype.calcTime = function() {
 
 Program.prototype.getTimelineValue = function(timeline_id, cursorPosition) {
 	for (var i = this.timelines.length - 1; i >= 0; i--) {
-		if(this.timelines[i].id !== timeline_id) continue;
+		if (this.timelines[i].id !== timeline_id) continue;
 
 		/**
 		 * For all patterns for this timeline
@@ -177,23 +188,23 @@ Program.prototype.getTimelineValue = function(timeline_id, cursorPosition) {
 			/**
 			 * have we gone past the start of this pattern?
 			 */
-			if(cursorPosition.pos - this.timelines[i].patterns[k].location < 0) continue;
+			if (cursorPosition.pos - this.timelines[i].patterns[k].location < 0) continue;
 
 			/**
 			 * have we gone past it?
 			 */
-			if(cursorPosition.pos - this.timelines[i].patterns[k].location - this.timelines[i].patterns[k].pattern.length > 0) continue;
+			if (cursorPosition.pos - this.timelines[i].patterns[k].location - this.timelines[i].patterns[k].pattern.length > 0) continue;
 
 			/**
 			 * if we are here, the pattern is currently active
 			 */
-			
+
 			var percentThrough = ((cursorPosition.pos - this.timelines[i].patterns[k].location) / this.timelines[i].patterns[k].pattern.length) * 100;
 
 			// debug(percentThrough);
 
 			//Make sure nodes is in order, could be a little exspensive though? :/
-			var nodes = this.timelines[i].patterns[k].pattern.nodes.sort(function(a, b){
+			var nodes = this.timelines[i].patterns[k].pattern.nodes.sort(function(a, b) {
 				return a.x - b.x;
 			})
 
@@ -201,36 +212,45 @@ Program.prototype.getTimelineValue = function(timeline_id, cursorPosition) {
 				/**
 				 * Check if we are between these points, skip if not
 				 */
-				if(!(percentThrough > nodes[j].x && percentThrough < nodes[j + 1].x)) continue;
+				if (!(percentThrough >= nodes[j].x && percentThrough < nodes[j + 1].x)) continue;
 
-				debug(j);
-				debug("Wiffle face mgee!")
+				var percThroughNode = ((percentThrough - nodes[j].x) / (nodes[j + 1].x - nodes[j].x))
+
+				var value = nodes[j].y + ((nodes[j + 1].y - nodes[j].y) * percThroughNode)
+
+				return value;
 			}
 
 		}
 	}
 }
 
-Program.prototype.getChannelValues = function() {
+Program.prototype.getAllTimelineValues = function() {
 
 	var cursorPosition = this.getCursorTimelinePosition();
 
-	var deltas = [];
+	var deltas = {};
 
 	for (var i = this.timelines.length - 1; i >= 0; i--) {
-		
+
 		var delta = this.getTimelineValue(this.timelines[i].id, cursorPosition);
 
-		if(delta instanceof Array && delta.length > 0) deltas.push(delta);
+		if (typeof delta == "number") {
+			// debug("Adding")
+			deltas[this.timelines[i].id] = delta;
+		}
 	}
 
 	return deltas;
 }
 
-Program.prototype.getCursorTimelinePosition = function(){
+Program.prototype.getCursorTimelinePosition = function() {
 	var cursorMoveTime = this.options.bars * 60 / this.options.bpm * 4
 	var percent = ((this.time / 1000) % cursorMoveTime) * (100 / cursorMoveTime);
-	return {percent: percent, pos: (this.options.bars * 4 * 2) * (percent / 100)};
+	return {
+		percent: percent,
+		pos: (this.options.bars * 4 * 2) * (percent / 100)
+	};
 }
 
 Program.prototype.addNewTimelineLane = function() {
