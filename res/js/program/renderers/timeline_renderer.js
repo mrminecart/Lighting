@@ -354,7 +354,9 @@ TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, pat
 	/**
 	 * Bind to pattern
 	 */
-	tlpg.pid = this.parent.parent.timelines[laneIndex].patterns[patternIndex].id
+	tlpg.pid = this.parent.parent.timelines[laneIndex].patterns[patternIndex].id;
+
+	debug(tlpg.pid);
 
 	var self = this;
 

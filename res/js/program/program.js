@@ -16,20 +16,87 @@ var Program = function() {
 	};
 
 	this.timelines = [{
-		id: "gdsgdf",
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
-		channel_type: "move_pan",
-		patterns: [],
-	}, {
 		id: "fdsgsdf",
-		fixtures: ["b522f2cc-8855-4ad1-aeb9-a04dc7604682"],
+		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
 		channel_type: "move_pan",
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
-			location: 8,
+			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 16,
+				length: 32,
+				nodes: [{
+					x: 0,
+					y: 0
+				}, {
+					x: 50,
+					y: 100
+				}, {
+					x: 100,
+					y: 0
+				}]
+			}
+		}]
+	}, {
+		id: "34gsfghfgh",
+		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
+		channel_type: "move_tilt",
+		patterns: [{
+			id: "dsfgsdfgsdfg39fgsdfg",
+			location: 0,
+			colour: pleasejs.make_color()[0],
+			pattern: {
+				length: 32,
+				nodes: [{
+					x: 0,
+					y: 0
+				}, {
+					x: 25,
+					y: 100
+				}, {
+					x: 50,
+					y: 0
+				}, {
+					x: 75,
+					y: 100
+				}, {
+					x: 100,
+					y: 0
+				}]
+			}
+		}]
+	}, {
+		id: "dsfgsdfg",
+		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
+		channel_type: "shutter_brightness_combo",
+		patterns: [{
+			id: "fa3445jhkghjkdfe-345hfghfghys",
+			location: 0,
+			colour: pleasejs.make_color()[0],
+			pattern: {
+				length: 32,
+				nodes: [{
+					x: 0,
+					y: 60
+				}, {
+					x: 50,
+					y: 95
+				}, {
+					x: 100,
+					y: 60
+				}]
+			}
+		}]
+	}, {
+		id: "dsfgsdfgdf",
+		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
+		channel_type: "colour_preset",
+		patterns: [{
+			id: "fa3445ae-sjkl;jkl;e-345hfghfghys",
+			location: 0,
+			colour: pleasejs.make_color()[0],
+			pattern: {
+				length: 32,
 				nodes: [{
 					x: 0,
 					y: 0
@@ -132,25 +199,25 @@ Program.prototype.tick = function() {
 	setTimeout(this.tick.bind(this), 1000 / 60)
 }
 
-Program.prototype.getFixtureDelta = function(timelineValues){
+Program.prototype.getFixtureDelta = function(timelineValues) {
 	var fixtureData = {};
 
 	var keys = Object.keys(timelineValues)
 
 	for (var i = keys.length - 1; i >= 0; i--) {
-		
+
 		var fixtures = [];
 		var channel_type = "";
 
 		for (var k = 0; k < this.timelines.length; k++) {
-			if(this.timelines[k].id == keys[i]){
+			if (this.timelines[k].id == keys[i]) {
 				fixtures = this.timelines[k].fixtures;
 				channel_type = this.timelines[k].channel_type;
 			}
 		}
 
 		for (var j = 0; j < fixtures.length; j++) {
-			if(!fixtureData[fixtures[j]]){
+			if (!fixtureData[fixtures[j]]) {
 				fixtureData[fixtures[j]] = {};
 			}
 
