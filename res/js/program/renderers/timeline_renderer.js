@@ -298,45 +298,71 @@ TimelineRenderer.prototype.drawPatterns = function(redraw, initial) {
 	for (var i = 0; i < this.parent.parent.timelines.length; i++) {
 		for (var k = 0; k < this.parent.parent.timelines[i].patterns.length; k++) {
 
-			if (!this.parent.parent.timelines[i].patterns[k].tmp) {
-				this.parent.parent.timelines[i].patterns[k].tmp = {};
-			}
-
-			var tlpg = this.parent.parent.timelines[i].patterns[k].tmp.graphics;
-
-			/**
-			 * init graphics and events
-			 */
-			if (!tlpg) {
-				tlpg = this.makeTimelinePatternGraphics(i, k, this.outerContainer);
-			}
-
-			/**
-			 * Draw box
-			 */
-			tlpg.clear();
-
-			var borderWidth = 2;
-
-			var colour = color(this.parent.parent.timelines[i].patterns[k].colour);
-			colour.darken(0.5);
-
-			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.parent.timelines[i].patterns[k].location), (i * this.timelineLaneHeight) + this.timelineScroll, this.parent.parent.timelines[i].patterns[k].pattern.length * this.barGridStepWidth, this.timelineLaneHeight);
-			tlpg.endFill();
-
-			colour.lighten(0.7);
-
-			tlpg.beginFill(parseInt(colour.hexString().substring(1), 16));
-			tlpg.drawRect(this.parent.parent.options.leftSideWidth + (this.barGridStepWidth * this.parent.parent.timelines[i].patterns[k].location) + borderWidth, ((i * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, this.parent.parent.timelines[i].patterns[k].pattern.length * this.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
-			tlpg.endFill();
-
-			/**
-			 * Draw pattern
-			 */
+			this.drawPattern(this.parent.parent.timelines[i].patterns[k], i, k);
 
 		}
 	}
+}
+
+TimelineRenderer.prototype.drawPattern = function(pattern, timelineIndex, patternIndex) {
+	/**
+	 * init graphics and events
+	 */
+	if (!pattern.graphics) {
+		this.makeTimelinePatternGraphics(timelineIndex, patternIndex, this.outerContainer);
+	}
+
+	/**
+	 * Draw box
+	 */
+	pattern.graphics.clear();
+
+	for (var i = pattern.graphics.children.length - 1; i >= 0; i--) {
+		pattern.graphics.removeChild(pattern.graphics.children[i]);
+	};
+
+	this.drawPatternBox(pattern, timelineIndex);
+	this.drawPatternLines(pattern, timelineIndex);
+}
+
+TimelineRenderer.prototype.drawPatternLines = function(pattern, timelineIndex){
+	var borderWidth = 2;
+
+	var colour = color(pattern.colour);
+	colour.darken(0.1);
+
+	var timelineWidth = this.parent.width - this.parent.parent.options.leftSideWidth - this.parent.parent.options.rightSideWidth - this.timelineScrollBarWidth;
+	var beatWidth = timelineWidth / (this.parent.parent.options.bars * 8);
+	var patternWidth = (pattern.pattern.length * beatWidth) - (borderWidth * 2);
+	var xPad = (pattern.location * beatWidth) + this.parent.parent.options.leftSideWidth;
+	var patternheight = this.timelineLaneHeight - (borderWidth * 2);
+	// debug(xPad);
+
+	for (var i = 0; i < pattern.pattern.nodes.length - 1; i++) {
+		var line = new PIXI.Graphics().lineStyle(1, parseInt(colour.hexString().substring(1), 16));
+
+		line.moveTo(borderWidth + xPad + ((pattern.pattern.nodes[i].x / 100) * patternWidth), ((timelineIndex * this.timelineLaneHeight) + this.timelineScroll + ((1 - pattern.pattern.nodes[i].y / 100) * patternheight)) + borderWidth);
+		line.lineTo(borderWidth + xPad + ((pattern.pattern.nodes[i + 1].x / 100) * patternWidth), ((timelineIndex * this.timelineLaneHeight) + this.timelineScroll + ((1 - pattern.pattern.nodes[i + 1].y / 100) * patternheight)) + borderWidth);
+
+		pattern.graphics.addChild(line);
+	}
+}
+
+TimelineRenderer.prototype.drawPatternBox = function(pattern, timelineIndex){
+	var borderWidth = 2;
+
+	var colour = color(pattern.colour);
+	colour.darken(0.5);
+
+	pattern.graphics.beginFill(parseInt(colour.hexString().substring(1), 16));
+	pattern.graphics.drawRect(this.parent.parent.options.leftSideWidth + (this.barGridStepWidth * pattern.location), (timelineIndex * this.timelineLaneHeight) + this.timelineScroll, pattern.pattern.length * this.barGridStepWidth, this.timelineLaneHeight);
+	pattern.graphics.endFill();
+
+	colour.lighten(0.3);
+
+	pattern.graphics.beginFill(parseInt(colour.hexString().substring(1), 16));
+	pattern.graphics.drawRect(this.parent.parent.options.leftSideWidth + (this.barGridStepWidth * pattern.location) + borderWidth, ((timelineIndex * this.timelineLaneHeight) + borderWidth) + this.timelineScroll, pattern.pattern.length * this.barGridStepWidth - (borderWidth * 2), this.timelineLaneHeight - (borderWidth * 2));
+	pattern.graphics.endFill();
 }
 
 TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, patternIndex, outerContainer) {
@@ -345,7 +371,7 @@ TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, pat
 	 * @type {PIXI}
 	 */
 	tlpg = new PIXI.Graphics();
-	this.parent.parent.timelines[laneIndex].patterns[patternIndex].tmp.graphics = tlpg;
+	this.parent.parent.timelines[laneIndex].patterns[patternIndex].graphics = tlpg;
 	outerContainer.addChild(tlpg);
 
 	tlpg.interactive = true;

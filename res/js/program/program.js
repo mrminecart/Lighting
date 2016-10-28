@@ -7,7 +7,7 @@ var Program = function() {
 
 	this.options = this.buildOptions({
 		bpm: 128,
-		bars: 4,
+		bars: 8,
 	});
 
 	this.timing = {
@@ -24,7 +24,7 @@ var Program = function() {
 			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 32,
+				length: 64,
 				nodes: [{
 					x: 0,
 					y: 0
@@ -43,7 +43,7 @@ var Program = function() {
 		channel_type: "move_tilt",
 		patterns: [{
 			id: "dsfgsdfgsdfg39fgsdfg",
-			location: 0,
+			location: 16,
 			colour: pleasejs.make_color()[0],
 			pattern: {
 				length: 32,
@@ -71,10 +71,10 @@ var Program = function() {
 		channel_type: "shutter_brightness_combo",
 		patterns: [{
 			id: "fa3445jhkghjkdfe-345hfghfghys",
-			location: 0,
+			location: 16,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 32,
+				length: 8,
 				nodes: [{
 					x: 0,
 					y: 60
@@ -93,7 +93,7 @@ var Program = function() {
 		channel_type: "colour_preset",
 		patterns: [{
 			id: "fa3445ae-sjkl;jkl;e-345hfghfghys",
-			location: 0,
+			location: 32,
 			colour: pleasejs.make_color()[0],
 			pattern: {
 				length: 32,

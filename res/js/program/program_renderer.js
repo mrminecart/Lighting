@@ -31,6 +31,7 @@ ProgramRenderer.prototype.init = function(callback) {
 	
 	this.timelineRenderer = new TimelineRenderer(this);
 	this.bottomBarRenderer = new BottomBarRenderer(this);
+	this.rightBarRenderer = new RightBarRenderer(this);
 
 	this.listenForResize();
 	this.buildLayout();
@@ -110,14 +111,7 @@ ProgramRenderer.prototype.buildLayout = function() {
 
 	this.timelineRenderer.buildGraphics();
 	this.bottomBarRenderer.buildGraphics();
-
-	/**
-	 * Right sidebar graphics
-	 * @type {PIXI}
-	 */
-	this.rsbg = new PIXI.Graphics();
-	this.rsbg.interactive = true;
-	this.stage.addChild(this.rsbg);
+	this.rightBarRenderer.buildGraphics();
 
 	/**
 	 * Left sidebar graphics
@@ -238,7 +232,6 @@ ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	this.timelineRenderer.verifyAndSetTimelineScroll()
 
 	if (redraw) this.drawLeftSidebar();
-	this.drawRightSidebar(redraw, initial);
 
 	this.timelineRenderer.drawTimeline(redraw, initial);
 	this.timelineRenderer.buildTimelineScrollBar(redraw, initial);
@@ -247,6 +240,7 @@ ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	this.timelineRenderer.drawPatterns(redraw, initial);
 
 	this.bottomBarRenderer.redraw();
+	this.rightBarRenderer.redraw();
 }
 
 ProgramRenderer.prototype.drawLeftSidebar = function() {
@@ -260,45 +254,6 @@ ProgramRenderer.prototype.drawLeftSidebar = function() {
 	this.lsbg.beginFill(0x111111);
 	this.lsbg.drawRect(this.parent.options.leftSideWidth, 0, 1, this.height);
 	this.lsbg.endFill();
-}
-
-ProgramRenderer.prototype.drawRightSidebar = function(redraw, initial) {
-
-	var xpos = this.width - this.parent.options.rightSideWidth - this.timelineRenderer.timelineScrollBarWidth;
-
-	this.rsbg.clear()
-
-	/**
-	 * background
-	 */
-	this.rsbg.beginFill(0x333333);
-	this.rsbg.drawRect(xpos, 0, this.parent.options.rightSideWidth, this.timelineRenderer.timelineHeight);
-	this.rsbg.endFill();
-
-	this.rsbg.beginFill(0x111111);
-	this.rsbg.drawRect(xpos, 0, 1, this.timelineRenderer.timelineHeight);
-	this.rsbg.endFill();
-
-	/**
-	 * Count as in timeline
-	 */
-
-	this.rsbg.hitArea = this.rsbg.getBounds();
-
-	if (initial) {
-
-		this.rsbg.mouseover = function() {
-			setTimeout(function() {
-				this.mouseIn = true;
-			}.bind(this), 0);
-
-		}
-
-		this.rsbg.mouseout = function() {
-			this.mouseIn = false;
-		}
-
-	}
 }
 
 ProgramRenderer.prototype.tick = function() {
