@@ -271,14 +271,20 @@ ProgramRenderer.prototype.selectPattern = function(pid){
 
 ProgramRenderer.prototype.getPatternFromPid = function(pid) {
 	for (var j = 0; j < this.parent.timelines.length; j++) {
-
 		for (var x = 0; x < this.parent.timelines[j].patterns.length; x++) {
-
 			if (this.parent.timelines[j].patterns[x].id == pid) {
 				return this.parent.timelines[j].patterns[x];
 			}
-
 		}
+	}
+}
 
+ProgramRenderer.prototype.getPatternLocationFromPid = function(pid) {
+	for (var j = 0; j < this.parent.timelines.length; j++) {
+		for (var x = 0; x < this.parent.timelines[j].patterns.length; x++) {
+			if (this.parent.timelines[j].patterns[x].id == pid) {
+				return {t: j, p: x};
+			}
+		}
 	}
 }

@@ -21,10 +21,10 @@ var Program = function() {
 		channel_type: "move_pan",
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
-			location: 0,
+			location: 16,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 64,
+				length: 32,
 				nodes: [{
 					x: 0,
 					y: 0
@@ -43,10 +43,10 @@ var Program = function() {
 		channel_type: "move_tilt",
 		patterns: [{
 			id: "dsfgsdfgsdfg39fgsdfg",
-			location: 0,
+			location: 16,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 64,
+				length: 32,
 				nodes: [{
 					x: 0,
 					y: 0

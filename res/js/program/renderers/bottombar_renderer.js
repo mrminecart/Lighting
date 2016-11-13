@@ -25,13 +25,11 @@ BottomBarRenderer.prototype.buildGraphics = function() {
 	this.bbg.interactive = true;
 	this.parent.stage.addChild(this.bbg);
 
-	this.bblg = new PIXI.Graphics();
-	this.bblg.interactive = true;
-	this.parent.stage.addChild(this.bblg);
+	this.bblc = new PIXI.Container();
+	this.parent.stage.addChild(this.bblc);
 
-	this.bblpg = new PIXI.Graphics();
-	this.bblpg.interactive = true;
-	this.parent.stage.addChild(this.bblpg);
+	this.bbpc = new PIXI.Container();
+	this.parent.stage.addChild(this.bbpc);
 }
 
 BottomBarRenderer.prototype.buildCursor = function() {
@@ -76,8 +74,6 @@ BottomBarRenderer.prototype.draw = function() {
 	debug("Drawing Bottom bar")
 
 	this.bbg.clear();
-	this.bblg.clear();
-	this.bblpg.clear();
 
 	if (!this.parent.selectedPattern) {
 		this.bbg.beginFill(0x222222);
@@ -100,11 +96,9 @@ BottomBarRenderer.prototype.draw = function() {
 
 BottomBarRenderer.prototype.drawPatternLines = function() {
 
-	for (var i = this.bblg.children.length - 1; i >= 0; i--) {
-		this.bblg.removeChild(this.bblg.children[i]);
+	for (var i = this.bblc.children.length - 1; i >= 0; i--) {
+		this.bblc.removeChild(this.bblc.children[i]);
 	};
-
-	this.bblg.clear();
 
 	var pattern = this.parent.selectedPattern.pattern;
 
@@ -119,27 +113,36 @@ BottomBarRenderer.prototype.drawPatternLines = function() {
 		line.moveTo((this.pointWidth / 2) + xPad + ((pattern.nodes[i].x / 100) * width), this.parent.height - ((this.parent.bottomBarHeight - this.pointWidth) * (pattern.nodes[i].y / 100)) - (this.pointWidth / 2));
 		line.lineTo((this.pointWidth / 2) + xPad + ((pattern.nodes[i + 1].x / 100) * width), this.parent.height - ((this.parent.bottomBarHeight - this.pointWidth) * (pattern.nodes[i + 1].y / 100)) - (this.pointWidth / 2));
 
-		this.bblg.addChild(line);
+		this.bblc.addChild(line);
 	}
 }
 
 BottomBarRenderer.prototype.drawPatternPoints = function() {
-	this.bblpg.clear();
+
+	for (var i = this.bbpc.children.length - 1; i >= 0; i--) {
+		this.bbpc.removeChild(this.bbpc.children[i]);
+	};
 
 	var pattern = this.parent.selectedPattern.pattern;
 
-	var pointColour = color(this.parent.selectedPattern.colour) //.lighten(0.1);
+	var pointColour = color(this.parent.selectedPattern.colour).darken(0.1);
 
 	var width = this.parent.width - this.parent.parent.options.leftSideWidth - this.pointWidth;
 	var xPad = this.parent.parent.options.leftSideWidth;
 
-	this.bblpg.beginFill(parseInt(pointColour.hexString().substring(1), 16));
-
 	for (var i = 0; i < pattern.nodes.length; i++) {
-		var centerx = (this.pointWidth / 2) + xPad + ((pattern.nodes[i].x / 100) * width);
-		var centery = this.parent.height - ((this.parent.bottomBarHeight - this.pointWidth) * (pattern.nodes[i].y / 100)) - (this.pointWidth / 2);
-		this.bblpg.drawRect(centerx - this.pointWidth / 2, centery - this.pointWidth / 2, this.pointWidth, this.pointWidth);
+		var point = new BottomBarEditorPoint(this, {
+			centerx: (this.pointWidth / 2) + xPad + ((pattern.nodes[i].x / 100) * width),
+			centery: this.parent.height - ((this.parent.bottomBarHeight - this.pointWidth) * (pattern.nodes[i].y / 100)) - (this.pointWidth / 2),
+			width: this.pointWidth,
+			colour: pointColour,
+			nodeLoc: i
+		});
+
+		this.bbpc.addChild(point.getGraphics());
+
+		point.draw();
+		
 	}
 
-	this.bblpg.endFill();
 }
