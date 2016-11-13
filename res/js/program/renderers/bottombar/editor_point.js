@@ -83,12 +83,13 @@ BottomBarEditorPoint.prototype.updatePattern = function(){
 
 	// debug(this.g.position.x);
 
-	this.specs.plot_x = this.specs.centerx //+ this.g.position.x;
+	this.specs.plot_x = (((this.specs.centerx - (this.specs.width / 2)) + this.g.position.x - this.parent.parent.parent.options.leftSideWidth) / ((this.parent.parent.width - this.parent.parent.parent.options.leftSideWidth) - this.specs.width)) * 100;
 	this.specs.plot_y = (1 - (((this.specs.centery - (this.specs.width / 2)) + this.g.position.y - this.parent.parent.timelineRenderer.timelineHeight) / (this.parent.parent.bottomBarHeight - this.specs.width))) * 100;
 
-	// debug(this.parent.parent.timelineRenderer.timelineHeight);
-
-	debug(this.specs.plot_y)
+		/**
+		 * NEEDS BOUNDARY CHECKING
+		 */
 
 	this.parent.parent.parent.timelines[pl.t].patterns[pl.p].pattern.nodes[this.specs.nodeLoc].y = this.specs.plot_y;
+	this.parent.parent.parent.timelines[pl.t].patterns[pl.p].pattern.nodes[this.specs.nodeLoc].x = this.specs.plot_x;
 }
