@@ -14,6 +14,9 @@ RightBarRenderer.prototype.buildGraphics = function() {
 	this.rsbg = new PIXI.Graphics();
 	this.rsbg.interactive = true;
 
+	this.rstbg = new PIXI.Graphics();
+	this.rstbg.interactive = true;
+
 	/**
 	 * Count as in timeline
 	 */
@@ -30,7 +33,9 @@ RightBarRenderer.prototype.buildGraphics = function() {
 	this.rsbg.mouseout = function() {
 		this.mouseIn = false;
 	}
+
 	this.parent.stage.addChild(this.rsbg);
+	this.parent.stage.addChild(this.rstbg);
 }
 
 RightBarRenderer.prototype.init = function() {
@@ -47,7 +52,39 @@ RightBarRenderer.prototype.redraw = function(redraw, initial) {
 
 	this.drawBackground();
 
+	this.drawTimelineBars();
 
+}
+
+RightBarRenderer.prototype.drawTimelineBars = function() {
+
+	for (var i = this.rstbg.children.length - 1; i >= 0; i--) {
+		this.rstbg.removeChild(this.rstbg.children[i]);
+	};
+
+	for (var i = 0; i < this.parent.parent.timelines.length; i++) {
+		var type = this.parent.parent.timelines[i].channel_type;
+		var y = this.parent.timelineRenderer.timelineLaneHeight * i;
+
+		this.rstbg.beginFill(0x111111);
+		this.rstbg.drawRect(this.xpos, y, this.parent.parent.options.rightSideWidth, this.parent.timelineRenderer.timelineLaneHeight);
+		this.rstbg.endFill();
+
+		this.rstbg.beginFill(0x555555);
+		this.rstbg.drawRect(this.xpos + 1, y + 1, this.parent.parent.options.rightSideWidth - 2, this.parent.timelineRenderer.timelineLaneHeight - 2);
+		this.rstbg.endFill();
+
+		var text = new PIXI.Text(type, {
+			font: '15px Arial',
+			fill: 0x888888,
+			align: 'left'
+		});
+		text.x = this.xpos + 5;
+		text.y = y + 3;
+
+		this.rstbg.addChild(text);
+
+	}
 }
 
 RightBarRenderer.prototype.drawBackground = function() {
@@ -58,4 +95,6 @@ RightBarRenderer.prototype.drawBackground = function() {
 	this.rsbg.beginFill(0x111111);
 	this.rsbg.drawRect(this.xpos, 0, 1, this.parent.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
+
+	this.rsbg.hitArea = this.rsbg.getBounds();
 }

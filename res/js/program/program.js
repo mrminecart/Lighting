@@ -6,7 +6,7 @@ const pleasejs = require("pleasejs");
 var Program = function() {
 
 	this.options = this.buildOptions({
-		bpm: 128,
+		bpm: 180,
 		bars: 8,
 	});
 
@@ -43,10 +43,10 @@ var Program = function() {
 		channel_type: "move_tilt",
 		patterns: [{
 			id: "dsfgsdfgsdfg39fgsdfg",
-			location: 16,
+			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 32,
+				length: 64,
 				nodes: [{
 					x: 0,
 					y: 0
@@ -71,19 +71,19 @@ var Program = function() {
 		channel_type: "shutter_brightness_combo",
 		patterns: [{
 			id: "fa3445jhkghjkdfe-345hfghfghys",
-			location: 16,
+			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 8,
+				length: 64,
 				nodes: [{
 					x: 0,
-					y: 60
+					y: 30
 				}, {
 					x: 50,
-					y: 95
+					y: 50
 				}, {
 					x: 100,
-					y: 60
+					y: 30
 				}]
 			}
 		}]
@@ -93,19 +93,19 @@ var Program = function() {
 		channel_type: "colour_preset",
 		patterns: [{
 			id: "fa3445ae-sjkl;jkl;e-345hfghfghys",
-			location: 32,
+			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 32,
+				length: 64,
 				nodes: [{
 					x: 0,
-					y: 0
+					y: 60
 				}, {
 					x: 50,
-					y: 100
+					y: 75
 				}, {
 					x: 100,
-					y: 0
+					y: 60
 				}]
 			}
 		}]

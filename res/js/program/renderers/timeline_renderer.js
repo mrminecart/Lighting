@@ -382,7 +382,7 @@ TimelineRenderer.prototype.makeTimelinePatternGraphics = function(laneIndex, pat
 	 */
 	tlpg.pid = this.parent.parent.timelines[laneIndex].patterns[patternIndex].id;
 
-	debug(tlpg.pid);
+	// debug(tlpg.pid);
 
 	var self = this;
 
