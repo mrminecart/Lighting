@@ -216,7 +216,7 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 
 		itemContainer2.visible = this.timelineRenderer.tlg.mouseIn
 
-		if (event.button == 2 && (this.timelineRenderer.tlg.mouseIn || this.timelineRenderer.tlgbg.mouseIn || this.rsbg.mouseIn)) {
+		if (event.button == 2 && (this.timelineRenderer.tlg.mouseIn || this.timelineRenderer.tlgbg.mouseIn || this.rightBarRenderer.rsbg.mouseIn)) {
 			outerContainer.position.x = this.renderer.plugins.interaction.mouse.global.x;
 			outerContainer.position.y = this.renderer.plugins.interaction.mouse.global.y;
 			outerContainer.visible = true;

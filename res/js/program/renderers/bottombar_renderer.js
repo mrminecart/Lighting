@@ -12,6 +12,8 @@ BottomBarRenderer = function(parent) {
 BottomBarRenderer.prototype.init = function() {
 	debug("init...");
 
+	this.editorPoints = [];
+
 	this.pointWidth = 10;
 
 }
@@ -119,6 +121,15 @@ BottomBarRenderer.prototype.drawPatternLines = function() {
 
 BottomBarRenderer.prototype.drawPatternPoints = function() {
 
+	/**
+	 * Clearup editor points
+	 */
+	for (var i = 0; i < this.editorPoints.length; i++) {
+		this.editorPoints[i].unbind();
+	}
+
+	this.editorPoints = [];
+
 	for (var i = this.bbpc.children.length - 1; i >= 0; i--) {
 		this.bbpc.removeChild(this.bbpc.children[i]);
 	};
@@ -138,6 +149,8 @@ BottomBarRenderer.prototype.drawPatternPoints = function() {
 			colour: pointColour,
 			nodeLoc: i
 		});
+
+		this.editorPoints.push(point);
 
 		this.bbpc.addChild(point.getGraphics());
 

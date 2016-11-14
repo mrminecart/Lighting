@@ -128,7 +128,17 @@ DmxManager.prototype.set = function(packet) {
 
 			if (typeof packet[universes[u]][channels[c]] == "number") {
 
-				this.landscape[universes[u]][channels[c]] = Number.parseInt(packet[universes[u]][channels[c]])
+				var value = Number.parseInt(packet[universes[u]][channels[c]]);
+
+				if(value < 0){
+					value = 0;
+				}
+
+				if(value > 255){
+					value = 255;
+				}
+
+				this.landscape[universes[u]][channels[c]] = value;
 
 			} else {
 				debug("GOT NON NUMBER FOR DMX VALUE!?");
