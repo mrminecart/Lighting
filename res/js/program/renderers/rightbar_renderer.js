@@ -34,8 +34,9 @@ RightBarRenderer.prototype.buildGraphics = function() {
 		this.mouseIn = false;
 	}
 
-	this.parent.stage.addChild(this.rsbg);
-	this.parent.stage.addChild(this.rstbg);
+	this.parent.parent.stage.addChild(this.rsbg);
+	this.parent.parent.stage.addChild(this.rstbg);
+
 }
 
 RightBarRenderer.prototype.init = function() {
@@ -46,9 +47,12 @@ RightBarRenderer.prototype.init = function() {
 
 RightBarRenderer.prototype.redraw = function(redraw, initial) {
 
-	this.xpos = this.parent.width - this.parent.parent.options.rightSideWidth - this.parent.timelineRenderer.timelineScrollBarWidth;
+	debug("Redrawing");
 
-	this.rsbg.clear()
+	this.xpos = this.parent.parent.width - this.parent.parent.parent.options.rightSideWidth - this.parent.parent.timelineRenderer.timelineScrollBarWidth;
+
+	this.rsbg.clear();
+	this.rstbg.clear();
 
 	this.drawBackground();
 
@@ -62,25 +66,25 @@ RightBarRenderer.prototype.drawTimelineBars = function() {
 		this.rstbg.removeChild(this.rstbg.children[i]);
 	};
 
-	for (var i = 0; i < this.parent.parent.timelines.length; i++) {
-		var type = this.parent.parent.timelines[i].channel_type;
-		var y = this.parent.timelineRenderer.timelineLaneHeight * i;
+	for (var i = 0; i < this.parent.parent.parent.timelines.length; i++) {
+		var name = this.parent.parent.parent.timelines[i].name;
+		var y = this.parent.parent.timelineRenderer.timelineLaneHeight * i;
 
 		this.rstbg.beginFill(0x111111);
-		this.rstbg.drawRect(this.xpos, y, this.parent.parent.options.rightSideWidth, this.parent.timelineRenderer.timelineLaneHeight);
+		this.rstbg.drawRect(this.xpos, y + this.parent.timelineScroll, this.parent.parent.parent.options.rightSideWidth, this.parent.parent.timelineRenderer.timelineLaneHeight);
 		this.rstbg.endFill();
 
 		this.rstbg.beginFill(0x555555);
-		this.rstbg.drawRect(this.xpos + 1, y + 1, this.parent.parent.options.rightSideWidth - 2, this.parent.timelineRenderer.timelineLaneHeight - 2);
+		this.rstbg.drawRect(this.xpos + 1, y + 1 + this.parent.timelineScroll, this.parent.parent.parent.options.rightSideWidth - 2, this.parent.parent.timelineRenderer.timelineLaneHeight - 2);
 		this.rstbg.endFill();
 
-		var text = new PIXI.Text(type, {
+		var text = new PIXI.Text(name, {
 			font: '15px Arial',
 			fill: 0x888888,
 			align: 'left'
 		});
 		text.x = this.xpos + 5;
-		text.y = y + 3;
+		text.y = y + 3 + this.parent.timelineScroll;
 
 		this.rstbg.addChild(text);
 
@@ -89,11 +93,11 @@ RightBarRenderer.prototype.drawTimelineBars = function() {
 
 RightBarRenderer.prototype.drawBackground = function() {
 	this.rsbg.beginFill(0x333333);
-	this.rsbg.drawRect(this.xpos, 0, this.parent.parent.options.rightSideWidth, this.parent.timelineRenderer.timelineHeight);
+	this.rsbg.drawRect(this.xpos, 0, this.parent.parent.parent.options.rightSideWidth, this.parent.parent.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
 
 	this.rsbg.beginFill(0x111111);
-	this.rsbg.drawRect(this.xpos, 0, 1, this.parent.timelineRenderer.timelineHeight);
+	this.rsbg.drawRect(this.xpos, 0, 1, this.parent.parent.timelineRenderer.timelineHeight);
 	this.rsbg.endFill();
 
 	this.rsbg.hitArea = this.rsbg.getBounds();

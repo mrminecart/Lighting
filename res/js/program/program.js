@@ -2,6 +2,7 @@ const debug = require('debug')("li:client:program");
 const remote = require('electron').remote;
 const app = remote.getGlobal('app_main');
 const pleasejs = require("pleasejs");
+const uuid = require('uuid');
 
 var Program = function() {
 
@@ -18,6 +19,7 @@ var Program = function() {
 	this.timelines = [{
 		id: "fdsgsdf",
 		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
+		name: "MH Pan",
 		channel_type: "move_pan",
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
@@ -40,13 +42,31 @@ var Program = function() {
 	}, {
 		id: "34gsfghfgh",
 		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
+		name: "MH Tilt",
 		channel_type: "move_tilt",
 		patterns: [{
 			id: "ghdfgh-se34-531a-sdfe-fgfdghdfg",
 			location: 0,
-			colour: pleasejs.make_color()[0],
+			colour: "#ff00ff",
 			pattern: {
-				length: 64,
+				length: 32,
+				nodes: [{
+					x: 0,
+					y: 100
+				}, {
+					x: 50,
+					y: 0
+				}, {
+					x: 100,
+					y: 100
+				}]
+			}
+		}, {
+			id: "dfg-34tfgsghfg-345efrh-yrhfg",
+			location: 32,
+			colour: "#ff00ff",
+			pattern: {
+				length: 32,
 				nodes: [{
 					x: 0,
 					y: 100
@@ -121,13 +141,16 @@ Program.prototype.bindKeyPresses = function() {
 			case 36:
 				this.gotoStart();
 				break;
+			case 84:
+				if (event.ctrlKey) this.addNewTimelineLane();
+				break;
 			default:
 				debug(event.keyCode)
 		}
 	}.bind(this));
 }
 
-Program.prototype.bindButtonEvents = function(){
+Program.prototype.bindButtonEvents = function() {
 	this.eventHandler = new ProgramEventHandler(this, function(err) {
 		if (err) {
 			debug(err);
@@ -278,17 +301,19 @@ Program.prototype.getCursorTimelinePosition = function() {
 	};
 }
 
-// Program.prototype.addNewTimelineLane = function() {
+Program.prototype.addNewTimelineLane = function() {
 
-// 	this.timelines.push({
-// 		fixtures: [],
-// 		channel_type: null,
-// 		patterns: [],
-// 		active: true
-// 	})
+	this.timelines.push({
+		id: uuid.v4(),
+		fixtures: [],
+		name: "New Timeline",
+		channel_type: null,
+		patterns: [],
+		active: true
+	})
 
-// 	this.renderer.drawLayout(true, false);
-// }
+	this.renderer.drawLayout(true, false);
+}
 
 $(function() {
 	new Program();

@@ -31,7 +31,6 @@ ProgramRenderer.prototype.init = function(callback) {
 	
 	this.timelineRenderer = new TimelineRenderer(this);
 	this.bottomBarRenderer = new BottomBarRenderer(this);
-	this.rightBarRenderer = new RightBarRenderer(this);
 
 	this.listenForResize();
 	this.buildLayout();
@@ -111,7 +110,6 @@ ProgramRenderer.prototype.buildLayout = function() {
 
 	this.timelineRenderer.buildGraphics();
 	this.bottomBarRenderer.buildGraphics();
-	this.rightBarRenderer.buildGraphics();
 
 	/**
 	 * Left sidebar graphics
@@ -216,7 +214,7 @@ ProgramRenderer.prototype.buildRightClickMenu = function() {
 
 		itemContainer2.visible = this.timelineRenderer.tlg.mouseIn
 
-		if (event.button == 2 && (this.timelineRenderer.tlg.mouseIn || this.timelineRenderer.tlgbg.mouseIn || this.rightBarRenderer.rsbg.mouseIn)) {
+		if (event.button == 2 && (this.timelineRenderer.tlg.mouseIn || this.timelineRenderer.tlgbg.mouseIn || this.timelineRenderer.rightBarRenderer.rsbg.mouseIn)) {
 			outerContainer.position.x = this.renderer.plugins.interaction.mouse.global.x;
 			outerContainer.position.y = this.renderer.plugins.interaction.mouse.global.y;
 			outerContainer.visible = true;
@@ -238,9 +236,9 @@ ProgramRenderer.prototype.drawLayout = function(redraw, initial) {
 	this.timelineRenderer.drawTimelineRowSeperators();
 	this.timelineRenderer.drawGreyedOutTimelineArea(initial);
 	this.timelineRenderer.drawPatterns(redraw, initial);
+	this.timelineRenderer.rightBarRenderer.redraw();
 
 	this.bottomBarRenderer.redraw();
-	this.rightBarRenderer.redraw();
 }
 
 ProgramRenderer.prototype.drawLeftSidebar = function() {

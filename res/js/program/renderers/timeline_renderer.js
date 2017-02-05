@@ -17,9 +17,15 @@ TimelineRenderer.prototype.init = function() {
 	this.timelineBarGrid = 8;
 	this.timelineScroll = 0;
 
+	this.rightBarRenderer = new RightBarRenderer(this);
 }
 
 TimelineRenderer.prototype.buildGraphics = function() {
+	
+	debug("Building graphics");
+
+	this.rightBarRenderer.buildGraphics();
+
 	/**
 	 * Timeline graphics
 	 * @type {PIXI}
@@ -35,6 +41,7 @@ TimelineRenderer.prototype.buildGraphics = function() {
 	this.tlgbg = new PIXI.Graphics();
 	this.tlgbg.interactive = true;
 	this.parent.stage.addChild(this.tlgbg);
+	
 
 	this.tsbbg = new PIXI.Graphics();
 	this.parent.stage.addChild(this.tsbbg);
@@ -43,6 +50,7 @@ TimelineRenderer.prototype.buildGraphics = function() {
 	this.tsbg.interactive = true;
 	this.tsbg.buttonMode = true;
 	this.parent.stage.addChild(this.tsbg);
+
 }
 
 TimelineRenderer.prototype.drawTimeline = function(redraw, initial) {
