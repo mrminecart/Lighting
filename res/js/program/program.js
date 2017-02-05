@@ -17,12 +17,12 @@ var Program = function() {
 	};
 
 	this.timelines = [{
-		id: "fdsgsdf",
+		id: uuid.v4(),
 		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
 		name: "MH Pan",
 		channel_type: "move_pan",
 		patterns: [{
-			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
+			id: uuid.v4(),
 			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
@@ -40,12 +40,12 @@ var Program = function() {
 			}
 		}]
 	}, {
-		id: "34gsfghfgh",
+		id: uuid.v4(),
 		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
 		name: "MH Tilt",
 		channel_type: "move_tilt",
 		patterns: [{
-			id: "ghdfgh-se34-531a-sdfe-fgfdghdfg",
+			id: uuid.v4(),
 			location: 0,
 			colour: "#ff00ff",
 			pattern: {
@@ -134,14 +134,13 @@ Program.prototype.handleResize = function() {
 Program.prototype.bindKeyPresses = function() {
 	window.addEventListener('keydown', function(event) {
 		switch (event.keyCode) {
-			//Space
-			case 32:
+			case 32: // Space
 				this.togglePause();
 				break;
-			case 36:
+			case 36: // Home
 				this.gotoStart();
 				break;
-			case 84:
+			case 84: // T
 				if (event.ctrlKey) this.addNewTimelineLane();
 				break;
 			default:
@@ -166,6 +165,7 @@ Program.prototype.togglePause = function() {
 Program.prototype.gotoStart = function() {
 	debug("Going to start of timeline")
 	this.timing.timeOffset = new Date().getTime();
+	this.calcTime(true)
 }
 
 Program.prototype.run = function() {
@@ -210,12 +210,12 @@ Program.prototype.getFixtureDelta = function(timelineValues) {
 	return fixtureData;
 }
 
-Program.prototype.calcTime = function() {
+Program.prototype.calcTime = function(force) {
 	var now = new Date().getTime();
 	this.timing.deltaTime = now - this.timing.lastTick;
 	this.timing.lastTick = now;
 
-	if (this.options.running) {
+	if (this.options.running || force) {
 		this.time = new Date().getTime() - this.timing.timeOffset;
 	} else {
 		this.timing.timeOffset += this.timing.deltaTime;
