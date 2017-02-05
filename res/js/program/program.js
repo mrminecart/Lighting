@@ -21,10 +21,10 @@ var Program = function() {
 		channel_type: "move_pan",
 		patterns: [{
 			id: "fa3445ae-se34-531a-sdfe-345hfghfghys",
-			location: 16,
+			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
-				length: 32,
+				length: 64,
 				nodes: [{
 					x: 0,
 					y: 0
@@ -42,70 +42,20 @@ var Program = function() {
 		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
 		channel_type: "move_tilt",
 		patterns: [{
-			id: "dsfgsdfgsdfg39fgsdfg",
-			location: 16,
-			colour: pleasejs.make_color()[0],
-			pattern: {
-				length: 32,
-				nodes: [{
-					x: 0,
-					y: 0
-				}, {
-					x: 25,
-					y: 100
-				}, {
-					x: 50,
-					y: 0
-				}, {
-					x: 75,
-					y: 100
-				}, {
-					x: 100,
-					y: 0
-				}]
-			}
-		}]
-	}, {
-		id: "dsfgsdfg",
-		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
-		channel_type: "shutter_brightness_combo",
-		patterns: [{
-			id: "fa3445jhkghjkdfe-345hfghfghys",
+			id: "ghdfgh-se34-531a-sdfe-fgfdghdfg",
 			location: 0,
 			colour: pleasejs.make_color()[0],
 			pattern: {
 				length: 64,
 				nodes: [{
 					x: 0,
-					y: 30
+					y: 100
 				}, {
 					x: 50,
-					y: 50
+					y: 0
 				}, {
 					x: 100,
-					y: 30
-				}]
-			}
-		}]
-	}, {
-		id: "dsfgsdfgdf",
-		fixtures: ["51793a8f-5969-4e92-ac85-fd7c66e1142b"],
-		channel_type: "colour_preset",
-		patterns: [{
-			id: "fa3445ae-sjkl;jkl;e-345hfghfghys",
-			location: 0,
-			colour: pleasejs.make_color()[0],
-			pattern: {
-				length: 64,
-				nodes: [{
-					x: 0,
-					y: 60
-				}, {
-					x: 50,
-					y: 75
-				}, {
-					x: 100,
-					y: 60
+					y: 100
 				}]
 			}
 		}]
@@ -120,11 +70,11 @@ Program.prototype.init = function() {
 	this.buildRenderer();
 	this.handleResize();
 	this.bindKeyPresses();
+	this.bindButtonEvents();
 
 	this.run();
 
 	debug("Ready to program!");
-
 }
 
 Program.prototype.buildOptions = function(options) {
@@ -175,6 +125,14 @@ Program.prototype.bindKeyPresses = function() {
 				debug(event.keyCode)
 		}
 	}.bind(this));
+}
+
+Program.prototype.bindButtonEvents = function(){
+	this.eventHandler = new ProgramEventHandler(this, function(err) {
+		if (err) {
+			debug(err);
+		}
+	});
 }
 
 Program.prototype.togglePause = function() {
@@ -320,17 +278,17 @@ Program.prototype.getCursorTimelinePosition = function() {
 	};
 }
 
-Program.prototype.addNewTimelineLane = function() {
+// Program.prototype.addNewTimelineLane = function() {
 
-	this.timelines.push({
-		fixtures: [],
-		channel_type: null,
-		patterns: [],
-		active: true
-	})
+// 	this.timelines.push({
+// 		fixtures: [],
+// 		channel_type: null,
+// 		patterns: [],
+// 		active: true
+// 	})
 
-	this.renderer.drawLayout(true, false);
-}
+// 	this.renderer.drawLayout(true, false);
+// }
 
 $(function() {
 	new Program();

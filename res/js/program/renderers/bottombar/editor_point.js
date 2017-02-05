@@ -75,8 +75,6 @@ BottomBarEditorPoint.prototype.onMouseDown = function(event) {
 
 BottomBarEditorPoint.prototype.onMouseUp = function() {
 	this.dragging = false;
-
-	debug("ayy")
 }
 
 BottomBarEditorPoint.prototype.onMouseOver = function() {
@@ -135,6 +133,6 @@ BottomBarEditorPoint.prototype.delete = function() {
 
 BottomBarEditorPoint.prototype.unbind = function(){
 	this.deleted = true;
-	
+
 	delete this.g
 }
